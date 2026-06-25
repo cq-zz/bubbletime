@@ -1,0 +1,12 @@
+.expo/
+/android
+/ios
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+dist/
+node_modules/
+web-build/

@@ -1,0 +1,112 @@
+# 知识卡导出索引文件
+schema_version: 1
+locale: zh-CN
+branch: feature/no-auth
+exported_at: "2026-06-09T05:23:40Z"
+modules:
+    "":
+        dir_name: Bubbly Moments 个人生活管理应用
+        title: Bubbly Moments 个人生活管理应用
+        scope:
+            - .gitignore
+            - AGENTS.md
+            - CLAUDE.md
+            - README.md
+            - app.json
+            - eslint.config.js
+            - jsconfig.json
+            - package-lock.json
+            - package.json
+            - skills-lock.json
+            - .agents\skills\brandkit\SKILL.md
+            - .agents\skills\design-taste-frontend-v1\SKILL.md
+            - .agents\skills\design-taste-frontend\SKILL.md
+            - .agents\skills\full-output-enforcement\SKILL.md
+            - .agents\skills\gpt-taste\SKILL.md
+            - .agents\skills\high-end-visual-design\SKILL.md
+            - .agents\skills\image-to-code\SKILL.md
+            - .agents\skills\imagegen-frontend-mobile\SKILL.md
+            - .agents\skills\imagegen-frontend-web\SKILL.md
+            - .agents\skills\industrial-brutalist-ui\SKILL.md
+            - .agents\skills\minimalist-ui\SKILL.md
+            - .agents\skills\redesign-existing-projects\SKILL.md
+            - .agents\skills\stitch-design-taste\DESIGN.md
+            - .agents\skills\stitch-design-taste\SKILL.md
+            - .claude\settings.json
+            - .expo\README.md
+            - .expo\cache\eslint\.cache_lxdb47
+            - .expo\cache\eslint\.cache_y51o2o
+            - .expo\dev\logs\export.log
+            - .expo\dev\logs\start.log
+            - .expo\devices.json
+            - .expo\settings.json
+            - .expo\static-tmp\_error.js
+            - .expo\types\router.d.ts
+            - .expo\web\cache\production\images\favicon\favicon-a4e030697a7571b3e95d31860e4da55d2f98e5e861e2b55e414f45a8556828ba-contain-transparent\favicon-48.png
+            - .vscode\extensions.json
+            - .vscode\settings.json
+            - LICENSE
+            - assets\expo.icon\Assets\expo-symbol 2.svg
+            - assets\expo.icon\Assets\grid.png
+            - assets\expo.icon\icon.json
+            - assets\images\android-icon-background.png
+            - assets\images\android-icon-foreground.png
+            - assets\images\android-icon-monochrome.png
+            - assets\images\expo-badge-white.png
+            - assets\images\expo-badge.png
+            - assets\images\expo-logo.png
+            - assets\images\favicon.png
+            - assets\images\icon.png
+            - assets\images\login\account-icon.svg
+            - assets\images\login\arrow-right.svg
+            - assets\images\login\eye-off-icon.svg
+            - assets\images\login\password-icon.svg
+            - assets\images\logo-glow.png
+            - assets\images\react-logo.png
+            - assets\images\react-logo@2x.png
+            - assets\images\react-logo@3x.png
+            - assets\images\splash-icon.png
+            - assets\images\system\bubbly-moments.png
+            - assets\images\tabIcons\explore.png
+            - assets\images\tabIcons\explore@2x.png
+            - assets\images\tabIcons\explore@3x.png
+            - assets\images\tabIcons\home.png
+            - assets\images\tabIcons\home@2x.png
+            - assets\images\tabIcons\home@3x.png
+            - assets\images\tutorial-web.png
+            - src\app\(profile)\_layout.jsx
+            - src\app\(profile)\settings.jsx
+            - src\app\(tabs)\_layout.jsx
+            - src\app\(tabs)\home.jsx
+            - src\app\_layout.jsx
+            - src\app\bills\[id].jsx
+            - src\app\bills\add.jsx
+            - src\app\bills\index.jsx
+            - src\app\durable\[id].jsx
+            - src\app\durable\add.jsx
+            - src\app\durable\index.jsx
+            - src\app\index.jsx
+            - src\app\reminder\[id].jsx
+            - src\app\reminder\index.jsx
+            - src\app\schedule\[id].jsx
+            - src\app\schedule\add.jsx
+            - src\app\schedule\index.jsx
+            - src\components\DatePickerField.jsx
+            - src\services\bills.js
+            - src\services\common.js
+            - src\services\database.js
+            - src\services\database.native.js
+            - src\services\durable.js
+            - src\services\reminder.js
+            - src\services\schedule.js
+            - src\utils\business.js
+            - src\utils\constant.js
+            - src\utils\durable.js
+            - src\utils\image.js
+            - src\utils\reminder.js
+            - src\utils\request.js
+            - src\utils\theme.js
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []
