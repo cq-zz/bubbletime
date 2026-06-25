@@ -39,7 +39,14 @@
       "@react-native-community/datetimepicker",
       "expo-sqlite",
       "expo-sharing",
-      "expo-image"
+      "expo-image",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "允许泡泡时光访问您的相册来选择头像",
+          "cameraPermission": "允许泡泡时光使用相机来拍照"
+        }
+      ]
     ],
     "experiments": {
       "baseUrl": "/bubbletime",

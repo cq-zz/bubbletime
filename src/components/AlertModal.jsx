@@ -32,6 +32,8 @@ export default function AlertModal({ visible, onClose, title, message, type = "t
     return [{ text: t("common.confirm"), onPress: onClose }];
   }, [buttons, onClose, t]);
 
+  const isActionSheet = resolvedButtons.length >= 3;
+
   const styles = useMemo(() => buildStyles(colors, shadows), [colors, shadows]);
 
   return (
@@ -43,21 +45,27 @@ export default function AlertModal({ visible, onClose, title, message, type = "t
           </View>
           {title ? <Text style={styles.title}>{title}</Text> : null}
           {message ? <Text style={styles.message}>{message}</Text> : null}
-          <View style={[styles.actions, resolvedButtons.length === 1 && styles.actionsSingle]}>
+          <View style={[styles.actions, isActionSheet ? styles.actionsColumn : resolvedButtons.length === 1 ? styles.actionsSingle : {}]}>
             {resolvedButtons.map((btn, i) => {
               const isPrimary = i === resolvedButtons.length - 1;
               const isCancel = btn.style === "cancel";
+              const isLast = i === resolvedButtons.length - 1;
               return (
                 <Pressable
                   key={i}
                   style={({ pressed }) => [
                     styles.btn,
-                    resolvedButtons.length > 1 && styles.btnFlex,
+                    !isActionSheet && resolvedButtons.length > 1 && styles.btnFlex,
                     isPrimary && !isCancel ? styles.btnPrimary : styles.btnSecondary,
-                    isCancel && styles.btnCancel,
+                    isCancel && isActionSheet && styles.btnCancelSheet,
+                    isCancel && !isActionSheet && styles.btnCancel,
+                    isLast && isActionSheet && styles.btnLast,
                     pressed && { opacity: 0.7 },
                   ]}
-                  onPress={() => { btn.onPress?.(); onClose(); }}
+                  onPress={async () => {
+                    await btn.onPress?.();
+                    onClose();
+                  }}
                 >
                   <Text
                     style={[
@@ -130,6 +138,10 @@ function buildStyles(colors, shadows) {
       flexDirection: "column",
       gap: spacing.md,
     },
+    actionsColumn: {
+      flexDirection: "column",
+      gap: spacing.sm,
+    },
     btn: {
       width: "100%",
       height: 48,
@@ -153,6 +165,12 @@ function buildStyles(colors, shadows) {
       backgroundColor: "transparent",
       borderWidth: 0,
     },
+    btnCancelSheet: {
+      backgroundColor: colors.input.bg,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    btnLast: {},
     btnText: {
       fontSize: 16,
       fontWeight: "600",
