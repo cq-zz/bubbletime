@@ -1,0 +1,22 @@
+{
+  "short_name": "泡泡时光",
+  "name": "泡泡时光 BubbleTime",
+  "description": "一站式个人生活管理工具",
+  "start_url": "/bubbletime/",
+  "scope": "/bubbletime/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#0B0B1A",
+  "background_color": "#0B0B1A",
+  "categories": ["productivity", "lifestyle"],
+  "lang": "zh-CN",
+  "dir": "ltr",
+  "icons": [
+    { "src": "/bubbletime/icons/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/bubbletime/icons/icon-512.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "any maskable" },
+    { "src": "/bubbletime/icons/icon-180.png", "sizes": "180x180", "type": "image/png", "purpose": "any" },
+    { "src": "/bubbletime/icons/icon-32.png", "sizes": "32x32", "type": "image/png", "purpose": "any" },
+    { "src": "/bubbletime/icons/icon-16.png", "sizes": "16x16", "type": "image/png", "purpose": "any" }
+  ],
+  "screenshots": []
+}

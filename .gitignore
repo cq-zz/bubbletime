@@ -10,3 +10,5 @@
 dist/
 node_modules/
 web-build/
+*.tsbuildinfo
+public/icons/icon-*.png

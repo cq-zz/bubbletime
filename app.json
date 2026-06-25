@@ -42,6 +42,7 @@
       "expo-image"
     ],
     "experiments": {
+      "baseUrl": "/bubbletime",
       "reactCompiler": true
     },
     "extra": {
