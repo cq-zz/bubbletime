@@ -139,7 +139,7 @@ export default {
     deleteAccountWarning: "After deletion, your account and all data (bills, items, schedules, etc.) will be permanently removed and cannot be recovered. Proceed with caution.",
   },
   about: {
-    description: "{{brand}} is an all-in-one personal life management tool.\n\n• Item Management — Track purchase prices, lifespan, expiry dates, auto-calculate daily cost, filter by status\n• Financial Ledger — 48 currencies, monthly/yearly trends, category breakdowns, Excel export\n• Schedule Planner — Priority levels, sub-task checklists, progress tracking, due reminders\n• Important Dates — Auto-calculates next date and days remaining, supports annual repeat\n• Mood Check-in — 20 mood options with trend calendar and monthly view\n• Unified Reminders — Central hub for item expiry, schedule deadlines, and date notifications\n• Dark/Light/Candy themes, bilingual Chinese/English\n\nAll data stays on your device — your privacy is fully protected.",
+    description: "{{brand}} is a personal life recorder.\n\n• Item Management — Track purchase prices, lifespan, expiry dates, auto-calculate daily cost, filter by status\n• Financial Ledger — 48 currencies, monthly/yearly trends, category breakdowns, Excel export\n• Schedule Planner — Priority levels, sub-task checklists, progress tracking, due reminders\n• Important Dates — Auto-calculates next date and days remaining, supports annual repeat\n• Mood Check-in — 20 mood options with trend calendar and monthly view\n• Unified Reminders — Central hub for item expiry, schedule deadlines, and date notifications\n• Dark/Light/Candy themes, bilingual Chinese/English\n\nAll data stays on your device — your privacy is fully protected.",
   },
   nav: {
     bills: "Ledger",
