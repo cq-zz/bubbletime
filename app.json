@@ -13,7 +13,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#F7F5F2",
+        "backgroundColor": "#FFFFFF",
         "foregroundImage": "./assets/images/icon.png"
       },
       "package": "com.bubbletime.app",
@@ -29,7 +29,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#0B0B1A",
+          "backgroundColor": "#FFFFFF",
           "image": "./assets/images/splash.png",
           "android": {
             "imageWidth": 200
