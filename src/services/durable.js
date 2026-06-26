@@ -159,7 +159,6 @@ export const fetchDurableList = async (params = {}) => {
       const icon = item.purchase_date ? "calendar_today" : "check_circle";
 
       const daysUntilExpiry = expiryDateField ? daysUntilDate(expiryDateField) : null;
-      const isExpired = daysUntilExpiry !== null && daysUntilExpiry < 0;
 
       return {
         id: normalizeId(item.id),
@@ -178,7 +177,6 @@ export const fetchDurableList = async (params = {}) => {
         expectedLifespan: expectedEnd || "",
         expiryDate: expiryDateField || "",
         daysUntilExpiry,
-        isExpired,
         expectedDailyAvg: expectedEnd ? formatDailyCost(expectedAvg) : "",
         otherExpenses,
         otherExpensesTotal: otherExpenses.reduce((s, e) => s + normalizeNumber(e.cost), 0),
@@ -220,7 +218,6 @@ export const fetchDurableDetail = async (itemId) => {
       expectedEnd,
     );
     const daysUntilExpiry = expiryDateField ? daysUntilDate(expiryDateField) : null;
-    const isExpired = daysUntilExpiry !== null && daysUntilExpiry < 0;
 
     const data = {
       id: normalizeId(item.id),
@@ -240,7 +237,6 @@ export const fetchDurableDetail = async (itemId) => {
       expectedLifespan: expectedEnd === purchaseDate ? "" : expectedEnd,
       expiryDate: expiryDateField || "",
       daysUntilExpiry,
-      isExpired,
       otherExpenses,
       otherExpensesTotal: otherExpenses.reduce((s, e) => s + normalizeNumber(e.cost), 0),
       otherIncomes,

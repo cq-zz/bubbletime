@@ -1,6 +1,6 @@
 import { Image } from "expo-image";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
-import { AlertTriangle, Package, Search } from "lucide-react-native";
+import { Package, Search } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -124,13 +124,6 @@ export default function DurableListScreen() {
             <Text style={styles.cardName}>{item.name}</Text>
           </View>
           <View style={styles.cardBadges}>
-            {item.isExpired && (
-              <View style={styles.expiredBadge}>
-                <AlertTriangle size={10} color="#FFFFFF" /><Text style={styles.expiredBadgeText}>
-                  {t("common.expired")}
-                </Text>
-              </View>
-            )}
             <View
               style={[styles.statusBadge, { backgroundColor: statusStyle.bg }]}
             >
@@ -450,21 +443,6 @@ function buildStyles(colors, shadows) {
       flexDirection: "row",
       alignItems: "center",
       gap: 6,
-    },
-    expiredBadge: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 3,
-      paddingHorizontal: 6,
-      paddingVertical: 3,
-      borderRadius: radius.full,
-      backgroundColor: colors.accent.red,
-    },
-    expiredBadgeText: {
-      color: "#FFFFFF",
-      fontSize: 10,
-      fontWeight: "700",
-      lineHeight: 14,
     },
     cardTypeLabel: {
       color: colors.primary,

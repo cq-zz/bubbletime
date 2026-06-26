@@ -171,14 +171,6 @@ export default function DurableDetailScreen() {
                     })()}
                   </Text>
                 </View>{/* */}
-                {detail.isExpired && (
-                  <View style={styles.expiredBadge}>
-                    <AlertTriangle size={11} color="#FFFFFF" />
-                    <Text style={styles.expiredBadgeText}>
-                      {t("common.expired")}
-                    </Text>
-                  </View>
-                )}
               </View>
             </View><View style={styles.detailCostWrap}>
               <Text style={styles.detailCost}>{detail.totalCost}</Text>
@@ -232,19 +224,8 @@ export default function DurableDetailScreen() {
               </Text>
             </View><View style={styles.statItem}>
               <Text style={styles.statLabel}>{t("durable.expiryDate")}</Text>
-              <Text
-                style={[
-                  styles.statValue,
-                  detail.isExpired && styles.statValueExpired,
-                ]}
-              >
+              <Text style={styles.statValue}>
                 {detail.expiryDate || t("common.notSet")}
-                {detail.isExpired
-                  ? ` (${t("common.expired")})`
-                  : detail.daysUntilExpiry !== null &&
-                      detail.daysUntilExpiry <= 2
-                    ? ` (${t("common.daysLeft", { count: detail.daysUntilExpiry })})`
-                    : ""}
               </Text>
             </View>{/* */}
             {detail.notes ? (

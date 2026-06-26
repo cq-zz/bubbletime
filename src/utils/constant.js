@@ -177,14 +177,14 @@ export const ICON_SELECTOR_OPTIONS = [
 export const DURABLE_FILTER_KEYS = {
   all: "all",
   inUse: "in_use",
+  expired: "expired",
   scrapped: "scrapped",
   transferred: "transferred",
 };
 
 export const DURABLE_STATUS_STYLES = {
   active: { bg: "#D1FADF", text: "#0F6B3A", color: "#46A758" },
-  idle: { bg: "#E8E8ED", text: "#464747", color: "#8A8A8E" },
-  repair: { bg: "#FFE4D6", text: "#93000A", color: "#E54D2E" },
+  expired: { bg: "#FEF3C7", text: "#92400E", color: "#F59E0B" },
   deprecated: { bg: "#D9D9D9", text: "#646467", color: "#B0B0B0" },
   transferred: { bg: "#D6E4F0", text: "#2C5282", color: "#3B82F6" },
 };
@@ -192,8 +192,7 @@ export const DURABLE_STATUS_STYLES = {
 /** 物品状态选项（value 为 DB 存储值，i18nKey 用于显示） */
 export const DURABLE_STATUS_OPTIONS = [
   { value: "in_use", i18nKey: "durable.inUse" },
-  { value: "idle", i18nKey: "durable.idle" },
-  { value: "repairing", i18nKey: "durable.repairing" },
+  { value: "expired", i18nKey: "durable.expired" },
   { value: "scrapped", i18nKey: "durable.scrapped" },
   { value: "transferred", i18nKey: "durable.transferred" },
 ];
@@ -201,8 +200,7 @@ export const DURABLE_STATUS_OPTIONS = [
 /** Maps status DB value → style key for DURABLE_STATUS_STYLES lookup */
 export const DURABLE_STATUS_STYLE_MAP = {
   in_use: "active",
-  idle: "idle",
-  repairing: "repair",
+  expired: "expired",
   scrapped: "deprecated",
   transferred: "transferred",
 };
