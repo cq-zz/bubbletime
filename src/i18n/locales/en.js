@@ -122,7 +122,7 @@ export default {
   profile: {
     settings: "App Settings",
     personalInfo: "Personal Info",
-    personalInfoDesc: "Manage your avatar, nickname, and email",
+    personalInfoDesc: "Manage your avatar, nickname",
     editProfile: "Edit Profile",
     changePassword: "Change Password",
     privacyTerms: "Privacy & Terms",

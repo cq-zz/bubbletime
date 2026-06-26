@@ -122,7 +122,7 @@ export default {
   profile: {
     settings: "应用设置",
     personalInfo: "个人信息",
-    personalInfoDesc: "管理您的头像、昵称和邮箱",
+    personalInfoDesc: "管理您的头像、昵称",
     editProfile: "修改个人信息",
     changePassword: "修改密码",
     privacyTerms: "隐私与条款",
