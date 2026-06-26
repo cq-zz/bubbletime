@@ -17,6 +17,7 @@ export default function Root({ children }: PropsWithChildren) {
         <meta name="theme-color" content="#0B0B1A" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <title>泡泡时光 - BubbleTime</title>
         <meta name="apple-mobile-web-app-title" content="泡泡时光" />
         <link rel="manifest" href={p("/manifest.json")} />
         <link rel="apple-touch-icon" href={p("/icons/icon-180.png")} />

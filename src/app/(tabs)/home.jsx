@@ -1691,7 +1691,7 @@ export default function HomeScreen() {
                 <View style={styles.moodTrendBars}>
                   {moodTrend.map((day) => {
                     const barH = day.score ? (day.score / 5) * 100 : 0;
-                    const barColor = day.score >= 4 ? "#46A758" : day.score >= 3 ? "#F0B866" : day.score >= 2 ? "#E54D2E" : "#D6409F";
+                    const barColor = day.score >= 5 ? "#FFC53D" : day.score >= 4 ? "#46A758" : day.score >= 3 ? "#5B8DD9" : day.score >= 2 ? "#E8933B" : "#CD3D64";
                     return (
                       <View key={day.dateStr} style={styles.moodTrendBarCol}>
                         <View style={styles.moodTrendBarWrap}>
@@ -1717,13 +1717,15 @@ export default function HomeScreen() {
                   })}
                 </View>
                 <View style={styles.moodTrendLegend}>
+                  <View style={[styles.moodTrendLegendDot, { backgroundColor: "#FFC53D" }]} />
+                  <Text style={styles.moodTrendLegendText}>5</Text>
                   <View style={[styles.moodTrendLegendDot, { backgroundColor: "#46A758" }]} />
-                  <Text style={styles.moodTrendLegendText}>5-4</Text>
-                  <View style={[styles.moodTrendLegendDot, { backgroundColor: "#F0B866" }]} />
+                  <Text style={styles.moodTrendLegendText}>4</Text>
+                  <View style={[styles.moodTrendLegendDot, { backgroundColor: "#5B8DD9" }]} />
                   <Text style={styles.moodTrendLegendText}>3</Text>
-                  <View style={[styles.moodTrendLegendDot, { backgroundColor: "#E54D2E" }]} />
+                  <View style={[styles.moodTrendLegendDot, { backgroundColor: "#E8933B" }]} />
                   <Text style={styles.moodTrendLegendText}>2</Text>
-                  <View style={[styles.moodTrendLegendDot, { backgroundColor: "#D6409F" }]} />
+                  <View style={[styles.moodTrendLegendDot, { backgroundColor: "#CD3D64" }]} />
                   <Text style={styles.moodTrendLegendText}>1</Text>
                 </View>
                 <View style={styles.moodTrendMsgWrap}>
