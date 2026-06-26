@@ -516,6 +516,18 @@ export default function HomeScreen() {
     return unsub;
   }, [loadMoodTrend]);
 
+  useEffect(() => {
+    const unsub = on("dataReset", () => {
+      setNickname("");
+      setAvatar(null);
+      setVisibleModules(HOME_MODULES.map((m) => m.id));
+      loadMoodTrend();
+      loadCharts();
+    });
+    return unsub;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const loadData = useCallback(async () => {
     try {
       const [savedNickname, savedAvatar, savedModules, reminderRes, counts] =
@@ -980,8 +992,8 @@ export default function HomeScreen() {
                   {formatAmount(moduleMetas.billsExpense ?? "0.00")}
                 </Text>
               </View>
-              {(moduleMetas.expMomTrend !== null ||
-                moduleMetas.expYoyTrend !== null ||
+              {(moduleMetas.expMomTrend != null ||
+                moduleMetas.expYoyTrend != null ||
                 formatShortLabel(moduleMetas.billsExpense ?? "0", t)) && (
                 <View style={styles.billTrendRow}>
                   {formatShortLabel(moduleMetas.billsExpense ?? "0", t) && (
@@ -995,7 +1007,7 @@ export default function HomeScreen() {
                     </Text>
                   )}
                   <View style={styles.billTrendGroup}>
-                    {moduleMetas.expMomTrend !== null && (
+                    {moduleMetas.expMomTrend != null && (
                       <Text
                         style={[
                           styles.billTrend,
@@ -1016,7 +1028,7 @@ export default function HomeScreen() {
                         {Math.abs(moduleMetas.expMomTrend).toFixed(0)}%
                       </Text>
                     )}
-                    {moduleMetas.expYoyTrend !== null && (
+                    {moduleMetas.expYoyTrend != null && (
                       <Text
                         style={[
                           styles.billTrend,
@@ -1131,8 +1143,8 @@ export default function HomeScreen() {
                   {formatAmount(moduleMetas.billsIncome ?? "0.00")}
                 </Text>
               </View>
-              {(moduleMetas.incMomTrend !== null ||
-                moduleMetas.incYoyTrend !== null ||
+              {(moduleMetas.incMomTrend != null ||
+                moduleMetas.incYoyTrend != null ||
                 formatShortLabel(moduleMetas.billsIncome ?? "0", t)) && (
                 <View style={styles.billTrendRow}>
                   {formatShortLabel(moduleMetas.billsIncome ?? "0", t) && (
@@ -1146,7 +1158,7 @@ export default function HomeScreen() {
                     </Text>
                   )}
                   <View style={styles.billTrendGroup}>
-                    {moduleMetas.incMomTrend !== null && (
+                    {moduleMetas.incMomTrend != null && (
                       <Text
                         style={[
                           styles.billTrend,
@@ -1167,7 +1179,7 @@ export default function HomeScreen() {
                         {Math.abs(moduleMetas.incMomTrend).toFixed(0)}%
                       </Text>
                     )}
-                    {moduleMetas.incYoyTrend !== null && (
+                    {moduleMetas.incYoyTrend != null && (
                       <Text
                         style={[
                           styles.billTrend,

@@ -56,6 +56,14 @@ export default function TabsLayout() {
   }, [loadModuleVisibility]);
 
   useEffect(() => {
+    const unsub = on("dataReset", () => {
+      loadModuleVisibility();
+      refresh();
+    });
+    return unsub;
+  }, [loadModuleVisibility, refresh]);
+
+  useEffect(() => {
     const pulse = Animated.loop(
       Animated.sequence([
         Animated.timing(pulseAnim, { toValue: 1.2, duration: 700, easing: Easing.out(Easing.ease), useNativeDriver: true }),

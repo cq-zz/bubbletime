@@ -269,6 +269,8 @@ export async function clearAllData() {
     bills: [],
     schedules: [],
     reminders: [],
+    check_ins: [],
+    important_dates: [],
     settings: [],
   };
   await persist();

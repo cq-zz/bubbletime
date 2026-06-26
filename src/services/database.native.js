@@ -139,7 +139,8 @@ const SCHEMA_STATEMENTS = [
     id TEXT PRIMARY KEY,
     check_date TEXT NOT NULL,
     mood TEXT NOT NULL,
-    created_at TEXT DEFAULT (datetime('now','localtime'))
+    created_at TEXT DEFAULT (datetime('now','localtime')),
+    updated_at TEXT DEFAULT ''
   )`,
   `CREATE TABLE IF NOT EXISTS important_dates (
     id TEXT PRIMARY KEY,
@@ -252,6 +253,10 @@ async function migrateSchema(database) {
     { name: "is_active", definition: "INTEGER DEFAULT 1" },
     { name: "dismissed", definition: "INTEGER DEFAULT 0" },
     { name: "created_at", definition: "TEXT DEFAULT ''" },
+    { name: "updated_at", definition: "TEXT DEFAULT ''" },
+  ]);
+
+  await ensureColumns(database, "check_ins", [
     { name: "updated_at", definition: "TEXT DEFAULT ''" },
   ]);
 

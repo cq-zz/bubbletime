@@ -2,7 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
+import { useNavigation, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -21,6 +21,7 @@ import {
   Camera,
   ChevronRight,
   Database,
+  FolderOpen,
   Moon,
   Palette,
   Pencil,
@@ -36,10 +37,12 @@ import { hexToRgba, radius, spacing, useTheme } from "../../utils/theme";
 import { DEFAULT_CURRENCY, DEFAULT_LANGUAGE, STORAGE_KEYS } from "../../utils/constant";
 import DataManagementCard from "../../components/DataManagementCard";
 import MoodCalendarModal from "../../components/MoodCalendarModal";
+import { on } from "../../utils/events";
 
 export default function ProfileScreen() {
   const { t } = useTranslation();
   const router = useRouter();
+  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { colors, shadows, themeMode, setThemeMode } = useTheme();
   const { alert } = useAlert();
@@ -49,6 +52,7 @@ export default function ProfileScreen() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editNickname, setEditNickname] = useState("");
   const [editAvatar, setEditAvatar] = useState(null);
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false);
 
   const saveSettings = useCallback(async (key, value) => {
     try {
@@ -58,18 +62,30 @@ export default function ProfileScreen() {
     }
   }, []);
 
+  const loadProfile = useCallback(async () => {
+    try {
+      const [savedNickname, savedAvatar] = await Promise.all([
+        AsyncStorage.getItem(STORAGE_KEYS.nickname),
+        AsyncStorage.getItem(STORAGE_KEYS.avatar),
+      ]);
+      if (savedNickname) setNickname(savedNickname);
+      if (savedAvatar) setAvatar(savedAvatar);
+    } catch {}
+  }, []);
+
+  useEffect(() => { loadProfile(); }, [loadProfile]);
+
   useEffect(() => {
-    const load = async () => {
-      try {
-        const [savedNickname, savedAvatar] = await Promise.all([
-          AsyncStorage.getItem(STORAGE_KEYS.nickname),
-          AsyncStorage.getItem(STORAGE_KEYS.avatar),
-        ]);
-        if (savedNickname) setNickname(savedNickname);
-        if (savedAvatar) setAvatar(savedAvatar);
-      } catch {}
-    };
-    load();
+    const unsubscribe = navigation.addListener("focus", loadProfile);
+    return unsubscribe;
+  }, [navigation, loadProfile]);
+
+  useEffect(() => {
+    const unsub = on("dataReset", () => {
+      setNickname("");
+      setAvatar(null);
+    });
+    return unsub;
   }, []);
 
   const openEditModal = () => {
@@ -78,68 +94,43 @@ export default function ProfileScreen() {
     setShowEditModal(true);
   };
 
-  const handleEditAvatar = async () => {
-    try {
-      if (Platform.OS === "web") {
-        const result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ["images"],
-          allowsEditing: true,
-          aspect: [1, 1],
-          quality: 0.8,
-        });
-        if (!result.canceled && result.assets[0])
-          setEditAvatar(result.assets[0].uri);
-        return;
-      }
-      alert(t("settings.chooseAvatar"), null, [
-        { text: t("common.cancel"), style: "cancel" },
-        {
-          text: t("settings.takePhoto"),
-          onPress: async () => {
-            const { status } =
-              await ImagePicker.requestCameraPermissionsAsync();
-            if (status !== "granted") {
-              alert(
-                t("settings.cameraPermission"),
-                t("settings.cameraPermissionMsg"),
-              );
-              return;
-            }
-            const result = await ImagePicker.launchCameraAsync({
-              mediaTypes: ["images"],
-              allowsEditing: true,
-              aspect: [1, 1],
-              quality: 0.8,
-            });
-            if (!result.canceled && result.assets[0])
-              setEditAvatar(result.assets[0].uri);
-          },
-        },
-        {
-          text: t("settings.fromAlbum"),
-          onPress: async () => {
-            const { status } =
-              await ImagePicker.requestMediaLibraryPermissionsAsync();
-            if (status !== "granted") {
-              alert(
-                t("settings.albumPermission"),
-                t("settings.albumPermissionMsg"),
-              );
-              return;
-            }
-            const result = await ImagePicker.launchImageLibraryAsync({
-              mediaTypes: ["images"],
-              allowsEditing: true,
-              aspect: [1, 1],
-              quality: 0.8,
-            });
-            if (!result.canceled && result.assets[0])
-              setEditAvatar(result.assets[0].uri);
-          },
-        },
-      ]);
-    } catch (e) {
-      alert(t("common.error"), e?.message || t("common.error"));
+  const pickFromCamera = async () => {
+    setShowAvatarPicker(false);
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert(t("settings.cameraPermission"), t("settings.cameraPermissionMsg"));
+      return;
+    }
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ["images"],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+    if (!result.canceled && result.assets[0]) setEditAvatar(result.assets[0].uri);
+  };
+
+  const pickFromAlbum = async () => {
+    setShowAvatarPicker(false);
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert(t("settings.albumPermission"), t("settings.albumPermissionMsg"));
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+    if (!result.canceled && result.assets[0]) setEditAvatar(result.assets[0].uri);
+  };
+
+  const handleEditAvatar = () => {
+    if (Platform.OS === "web") {
+      pickFromAlbum();
+    } else {
+      setShowAvatarPicker(true);
     }
   };
 
@@ -505,6 +496,60 @@ export default function ProfileScreen() {
         </Pressable>
       </Modal>
 
+      {Platform.OS !== "web" && (
+        <Modal
+          visible={showAvatarPicker}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowAvatarPicker(false)}
+        >
+          <View style={styles.pickerOverlay}>
+            <Pressable
+              style={StyleSheet.absoluteFill}
+              onPress={() => setShowAvatarPicker(false)}
+            />
+            <View style={styles.pickerSheet}>
+              <Text style={styles.pickerTitle}>{t("settings.chooseAvatar")}</Text>
+              <View style={styles.pickerActions}>
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.pickerBtn,
+                    pressed && { opacity: 0.75 },
+                  ]}
+                  onPress={pickFromCamera}
+                >
+                  <View style={[styles.pickerIconWrap, { backgroundColor: colors.primaryBgMedium }]}>
+                    <Camera size={20} color={colors.primary} />
+                  </View>
+                  <Text style={styles.pickerBtnText}>{t("settings.takePhoto")}</Text>
+                </Pressable>
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.pickerBtn,
+                    pressed && { opacity: 0.75 },
+                  ]}
+                  onPress={pickFromAlbum}
+                >
+                  <View style={[styles.pickerIconWrap, { backgroundColor: "rgba(107, 203, 158, 0.15)" }]}>
+                    <FolderOpen size={20} color={colors.accent?.green || "#6BCB9E"} />
+                  </View>
+                  <Text style={styles.pickerBtnText}>{t("settings.fromAlbum")}</Text>
+                </Pressable>
+              </View>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.pickerCancelBtn,
+                  pressed && { opacity: 0.7 },
+                ]}
+                onPress={() => setShowAvatarPicker(false)}
+              >
+                <Text style={styles.pickerCancelText}>{t("common.cancel")}</Text>
+              </Pressable>
+            </View>
+          </View>
+        </Modal>
+      )}
+
     </View>
   );
 }
@@ -765,6 +810,79 @@ function buildStyles(colors, shadows) {
       height: 6,
       borderRadius: 3,
       marginTop: 2,
+    },
+    pickerOverlay: {
+      flex: 1,
+      justifyContent: "flex-end",
+      backgroundColor: colors.modalOverlay,
+    },
+    pickerSheet: {
+      backgroundColor: colors.modalBg,
+      borderTopLeftRadius: 24,
+      borderTopRightRadius: 24,
+      borderCurve: "continuous",
+      paddingHorizontal: 20,
+      paddingTop: 20,
+      paddingBottom: Platform.OS === "ios" ? 34 : 20,
+      ...Platform.select({
+        ios: {
+          shadowColor: "#A677B6",
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: 0.15,
+          shadowRadius: 24,
+        },
+        android: { elevation: 16 },
+      }),
+    },
+    pickerTitle: {
+      fontSize: 14,
+      fontWeight: "600",
+      color: colors.textTertiary,
+      textAlign: "center",
+      marginBottom: 16,
+      letterSpacing: 0.5,
+    },
+    pickerActions: {
+      flexDirection: "row",
+      gap: 12,
+      marginBottom: 16,
+    },
+    pickerBtn: {
+      flex: 1,
+      alignItems: "center",
+      gap: 10,
+      paddingVertical: 20,
+      borderRadius: radius.lg,
+      borderCurve: "continuous",
+      backgroundColor: colors.surfaceFrost,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    pickerIconWrap: {
+      width: 52,
+      height: 52,
+      borderRadius: 26,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    pickerBtnText: {
+      fontSize: 13,
+      fontWeight: "600",
+      color: colors.textPrimary,
+    },
+    pickerCancelBtn: {
+      alignItems: "center",
+      justifyContent: "center",
+      paddingVertical: 14,
+      borderRadius: radius.md,
+      backgroundColor: colors.surfaceFrost,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    pickerCancelText: {
+      fontSize: 15,
+      fontWeight: "600",
+      color: colors.textTertiary,
     },
   });
 }

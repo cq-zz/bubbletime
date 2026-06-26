@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import { fetchCheckInList, fetchSubmitCheckIn } from "../services/checkIn";
 import { MOODS } from "../utils/constant";
-import { emit } from "../utils/events";
+import { emit, on } from "../utils/events";
 import { radius, useTheme } from "../utils/theme";
 
 export default function CheckInCalendar({ visible, onClose }) {
@@ -25,7 +25,20 @@ export default function CheckInCalendar({ visible, onClose }) {
     if (res.code === 0) setCheckRecords(res.data || []);
   }, []);
 
+  useEffect(() => {
+    if (visible) {
+      const now = new Date();
+      setViewYear(now.getFullYear());
+      setViewMonth(now.getMonth() + 1);
+    }
+  }, [visible]);
+
   useEffect(() => { loadMonth(viewYear, viewMonth); }, [viewYear, viewMonth, loadMonth]);
+  useEffect(() => {
+    const unsub1 = on("checkin", () => loadMonth(viewYear, viewMonth));
+    const unsub2 = on("dataReset", () => { setCheckRecords([]); loadMonth(viewYear, viewMonth); });
+    return () => { unsub1(); unsub2(); };
+  }, [viewYear, viewMonth, loadMonth]);
 
   const recordMap = useMemo(() => {
     const map = {};

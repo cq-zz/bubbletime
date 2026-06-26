@@ -24,10 +24,12 @@ import { useTheme, hexToRgba, radius } from "../utils/theme";
 import useAlert from "../hooks/useAlert";
 import { clearAllData, getAll } from "../services/database";
 import { getCustomCategories } from "../services/category";
+import { emit } from "../utils/events";
 import {
     CURRENCY_LIST,
     MAX_YEAR_DEFAULT,
     MIN_YEAR_DEFAULT,
+    MOODS,
     STORAGE_KEYS,
     SCHEDULE_STATUS_OPTIONS,
 } from "../utils/constant";
@@ -47,6 +49,7 @@ const EXPORT_MODULE_OPTIONS = [
   { id: "bills", i18nKey: "home.bills" },
   { id: "schedule", i18nKey: "home.schedule" },
   { id: "important-date", i18nKey: "home.importantDate" },
+  { id: "mood-trend", i18nKey: "moodTrend.title" },
 ];
 
 const CURRENCY_SYMBOL_MAP = {};
@@ -88,8 +91,14 @@ export default function DataManagementCard({ style }) {
     setClearing(true);
     try {
       await clearAllData();
+      const keys = Object.values(STORAGE_KEYS);
+      await AsyncStorage.multiRemove(keys);
       setShowClearModal(false);
       alert(t("common.cleared"), t("settings.resetSuccess"));
+      emit("dataReset");
+      if (Platform.OS === "web") {
+        window.location.reload();
+      }
     } catch (e) {
       console.error("重置数据失败:", e);
     } finally {
@@ -120,7 +129,7 @@ export default function DataManagementCard({ style }) {
         transfer: t("bills.transfer"),
       };
 
-      const tableMap = { durable: "durables", bills: "bills", schedule: "schedules", "important-date": "important_dates" };
+      const tableMap = { durable: "durables", bills: "bills", schedule: "schedules", "important-date": "important_dates", "mood-trend": "check_ins" };
       const allItems = await getAll(tableMap[exportModule]);
 
       const filterByDate = (items, dateField) => {
@@ -137,7 +146,7 @@ export default function DataManagementCard({ style }) {
         });
       };
 
-      const dateFields = { durable: "purchase_date", bills: "consumption_date", schedule: "end_date", "important-date": "date" };
+      const dateFields = { durable: "purchase_date", bills: "consumption_date", schedule: "end_date", "important-date": "date", "mood-trend": "check_date" };
       const filteredItems = filterByDate(allItems, dateFields[exportModule]);
 
       if (filteredItems.length === 0) {
@@ -208,6 +217,14 @@ export default function DataManagementCard({ style }) {
         IMG_COL = -1;
         prepData = filteredItems.map((item) => ({ vals: [safeVal(item.name ?? ""), safeVal(item.date ?? ""), item.type === "annual" ? t("importantDate.typeAnnual") : t("importantDate.typeOnce"), t(`importantDate.category${item.category ? item.category.charAt(0).toUpperCase() + item.category.slice(1) : "Other"}`), item.reminder_enabled ? t("common.yes") : t("common.no"), safeVal(item.notes ?? ""), safeVal(item.created_at ?? "")] }));
         sheetKey = "settings.excelSheetImportantDate";
+      } else if (exportModule === "mood-trend") {
+        headers = [t("settings.excelMoodDate"), t("settings.excelMoodMood"), t("settings.excelMoodCreatedAt")];
+        IMG_COL = -1;
+        prepData = filteredItems.map((item) => {
+          const mood = item.mood ? MOODS.find((m) => m.key === item.mood) : null;
+          return { vals: [safeVal(item.check_date ?? ""), mood ? t("checkIn.mood." + mood.key) + " (" + mood.emoji + " " + mood.score + "/5)" : safeVal(item.mood ?? ""), safeVal(item.created_at ?? "")] };
+        });
+        sheetKey = "settings.excelSheetMood";
       }
 
       if (Platform.OS === "web") {
@@ -218,7 +235,8 @@ export default function DataManagementCard({ style }) {
         const dateStr = exportMode === "year"
           ? t("settings.yearSuffix", { year: exportYear })
           : t("settings.yearMonthSuffix", { year: exportYear, month: exportMonth });
-        const safeFileName = t("settings.exportFileName", { date: dateStr }).replace(/[/\\]/g, "-").replace(/(\.\w+)$/, `_${new Date().toISOString().replace(/[:T.]/g, "").slice(0, 15)}$1`);
+        const moduleName = t(sheetKey);
+        const safeFileName = t("settings.exportFileName", { date: dateStr, module: moduleName }).replace(/[/\\]/g, "-").replace(/(\.\w+)$/, `_${new Date().toISOString().replace(/[:T.]/g, "").slice(0, 15)}$1`);
         const blob = new Blob([wbout], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
@@ -232,7 +250,8 @@ export default function DataManagementCard({ style }) {
         const dateStr = exportMode === "year"
           ? t("settings.yearSuffix", { year: exportYear })
           : t("settings.yearMonthSuffix", { year: exportYear, month: exportMonth });
-        const safeFileName = t("settings.exportFileName", { date: dateStr }).replace(/[/\\]/g, "-").replace(/(\.\w+)$/, `_${new Date().toISOString().replace(/[:T.]/g, "").slice(0, 15)}$1`);
+        const moduleName = t(sheetKey);
+        const safeFileName = t("settings.exportFileName", { date: dateStr, module: moduleName }).replace(/[/\\]/g, "-").replace(/(\.\w+)$/, `_${new Date().toISOString().replace(/[:T.]/g, "").slice(0, 15)}$1`);
 
         let buf;
         if (ExcelJS) {
