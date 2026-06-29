@@ -13,6 +13,7 @@ import { Image } from "expo-image";
 import { useTranslation } from "react-i18next";
 import { useTheme, hexToRgba, radius, spacing } from "../../utils/theme";
 import ConfirmModal from "../../components/ConfirmModal";
+import ImagePreviewModal from "../../components/ImagePreviewModal";
 import { fetchScheduleDetail, fetchSubmitSchedule, fetchDeleteSchedule } from "../../services/schedule";
 
 function daysUntil(dateStr) {
@@ -32,6 +33,7 @@ export default function ScheduleDetailScreen() {
   const router = useRouter();
   const [schedule, setSchedule] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [previewImage, setPreviewImage] = useState(null);
   const deleteActionRef = useRef(null);
 
   // 动态获取优先级配置
@@ -116,11 +118,13 @@ export default function ScheduleDetailScreen() {
         <View style={styles.detailCard}>
           {/* 相关图片 */}
           {schedule.image ? (
-            <Image
-              source={{ uri: schedule.image }}
-              style={styles.detailImage}
-              contentFit="contain"
-            />
+            <Pressable onPress={() => setPreviewImage(schedule.image)}>
+              <Image
+                source={{ uri: schedule.image }}
+                style={styles.detailImage}
+                contentFit="contain"
+              />
+            </Pressable>
           ) : null}
 
           <View style={styles.detailHeader}>
@@ -247,6 +251,10 @@ export default function ScheduleDetailScreen() {
         }}
         title={t("common.tip")}
         description={t("schedule.deleteConfirm")}
+      />
+      <ImagePreviewModal
+        imageUri={previewImage}
+        onClose={() => setPreviewImage(null)}
       />
     </View>
   );

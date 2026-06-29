@@ -8,10 +8,12 @@ import {
     Text,
     View,
 } from "react-native";
+import { Image } from "expo-image";
 import { Bell, Heart, Loader2, Pencil, Trash2 } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { useTheme, hexToRgba, radius, spacing } from "../../utils/theme";
 import ConfirmModal from "../../components/ConfirmModal";
+import ImagePreviewModal from "../../components/ImagePreviewModal";
 import { fetchImportantDateDetail, fetchSubmitImportantDate, fetchDeleteImportantDate } from "../../services/importantDate";
 
 export default function DetailScreen() {
@@ -21,6 +23,7 @@ export default function DetailScreen() {
   const router = useRouter();
   const [item, setItem] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [previewImage, setPreviewImage] = useState(null);
   const deleteActionRef = useRef(null);
 
   const CATEGORY_CONFIG = useMemo(() => ({
@@ -78,7 +81,9 @@ export default function DetailScreen() {
       <Stack.Screen options={{ title: t("nav.importantDateDetail"), headerShown: true }} /><ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.detailCard}>
           {item.image ? (
-            <Image source={{ uri: item.image }} style={styles.detailImage} contentFit="contain" />
+            <Pressable onPress={() => setPreviewImage(item.image)}>
+              <Image source={{ uri: item.image }} style={styles.detailImage} contentFit="contain" />
+            </Pressable>
           ) : (
             <View style={styles.imagePlaceholder}>
               <Heart size={40} color={colors.primaryBgMedium} />
@@ -157,6 +162,10 @@ export default function DetailScreen() {
         }}
         title={t("common.tip")}
         description={t("importantDate.deleteConfirm")}
+      />
+      <ImagePreviewModal
+        imageUri={previewImage}
+        onClose={() => setPreviewImage(null)}
       />
     </View>
   );

@@ -123,13 +123,13 @@ function buildStyles(colors, shadows) {
       lineHeight: 22,
     },
     actions: {
-      flexDirection: "column",
+      flexDirection: "row",
       gap: spacing.md,
       width: "100%",
       marginTop: spacing.sm,
     },
     cancelBtn: {
-      width: "100%",
+      flex: 1,
       height: 56,
       borderRadius: radius.md,
       borderCurve: "continuous",
@@ -145,7 +145,7 @@ function buildStyles(colors, shadows) {
       color: colors.textSecondary,
     },
     confirmBtn: {
-      width: "100%",
+      flex: 1,
       height: 56,
       borderRadius: radius.md,
       borderCurve: "continuous",

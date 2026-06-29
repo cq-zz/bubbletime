@@ -10,6 +10,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import ConfirmModal from "../../components/ConfirmModal";
+import ImagePreviewModal from "../../components/ImagePreviewModal";
 import { fetchBillDetail, fetchDeleteBill } from "../../services/bills";
 import { getCustomCategories, resolveCategoryIcon } from "../../services/category";
 import { CATEGORY_ICON } from "../../utils/constant";
@@ -32,6 +33,7 @@ export default function BillsDetailScreen() {
   const [error, setError] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [previewImage, setPreviewImage] = useState(null);
   const [customCats, setCustomCats] = useState([]);
   const deleteActionRef = useRef(null);
   
@@ -121,19 +123,23 @@ export default function BillsDetailScreen() {
       >
         <View style={styles.heroWrap}>
           {detail.receiptImage && !imageError ? (
-            <Image
-              source={{ uri: detail.receiptImage }}
-              style={styles.heroImage}
-              contentFit="contain"
-              onError={() => setImageError(true)}
-            />
+            <Pressable onPress={() => setPreviewImage(detail.receiptImage)}>
+              <Image
+                source={{ uri: detail.receiptImage }}
+                style={styles.heroImage}
+                contentFit="contain"
+                onError={() => setImageError(true)}
+              />
+            </Pressable>
           ) : detail.durableImage && !imageError ? (
-            <Image
-              source={{ uri: detail.durableImage }}
-              style={styles.heroImage}
-              contentFit="contain"
-              onError={() => setImageError(true)}
-            />
+            <Pressable onPress={() => setPreviewImage(detail.durableImage)}>
+              <Image
+                source={{ uri: detail.durableImage }}
+                style={styles.heroImage}
+                contentFit="contain"
+                onError={() => setImageError(true)}
+              />
+            </Pressable>
           ) : (
             <View style={[styles.heroFallback, { backgroundColor: colors.primaryBg }]}>
               <CatIcon size={48} color={colors.textTertiary} />
@@ -277,6 +283,10 @@ export default function BillsDetailScreen() {
         }}
         title={t("common.tip")}
         description={t("bills.deleteConfirm")}
+      />
+      <ImagePreviewModal
+        imageUri={previewImage}
+        onClose={() => setPreviewImage(null)}
       />
     </View>
   );

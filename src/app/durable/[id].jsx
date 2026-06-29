@@ -10,6 +10,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import ConfirmModal from "../../components/ConfirmModal";
+import ImagePreviewModal from "../../components/ImagePreviewModal";
 import { fetchDeleteDurable, fetchDurableDetail } from "../../services/durable";
 import { getCustomCategories, resolveCategoryIcon } from "../../services/category";
 import { CATEGORY_ICON, DURABLE_STATUS_OPTIONS, getDurableStatusStyle } from "../../utils/constant";
@@ -32,6 +33,7 @@ export default function DurableDetailScreen() {
   const [error, setError] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [customCats, setCustomCats] = useState([]);
+  const [previewImage, setPreviewImage] = useState(null);
   const deleteActionRef = useRef(null);
 
   useEffect(() => { getCustomCategories().then(setCustomCats); }, []);
@@ -120,7 +122,9 @@ export default function DurableDetailScreen() {
       >
         <View style={[styles.heroWrap, !detail.image && styles.heroWrapEmpty]}>
           {detail.image ? (
-            <Image source={detail.image} style={styles.heroImage} contentFit="contain" />
+            <Pressable onPress={() => setPreviewImage(detail.image)}>
+              <Image source={detail.image} style={styles.heroImage} contentFit="contain" />
+            </Pressable>
           ) : (
             <View style={styles.heroIconWrap}>
               {(() => {
@@ -372,6 +376,10 @@ export default function DurableDetailScreen() {
         }}
         title={t("common.tip")}
         description={t("durable.deleteConfirm")}
+      />
+      <ImagePreviewModal
+        imageUri={previewImage}
+        onClose={() => setPreviewImage(null)}
       />
     </View>
   );

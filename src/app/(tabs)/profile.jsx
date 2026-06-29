@@ -474,15 +474,6 @@ export default function ProfileScreen() {
             />
             <View style={styles.modalActions}>
               <Pressable
-                onPress={saveEditProfile}
-                style={({ pressed }) => [
-                  styles.modalSaveBtn,
-                  pressed && { opacity: 0.85 },
-                ]}
-              >
-                <Text style={styles.modalSaveText}>{t("common.save")}</Text>
-              </Pressable>
-              <Pressable
                 onPress={() => setShowEditModal(false)}
                 style={({ pressed }) => [
                   styles.modalCancelBtn,
@@ -490,6 +481,15 @@ export default function ProfileScreen() {
                 ]}
               >
                 <Text style={styles.modalCancelText}>{t("common.cancel")}</Text>
+              </Pressable>
+              <Pressable
+                onPress={saveEditProfile}
+                style={({ pressed }) => [
+                  styles.modalSaveBtn,
+                  pressed && { opacity: 0.85 },
+                ]}
+              >
+                <Text style={styles.modalSaveText}>{t("common.save")}</Text>
               </Pressable>
             </View>
           </Pressable>
@@ -736,10 +736,11 @@ function buildStyles(colors, shadows) {
       color: colors.input.text,
       backgroundColor: colors.input.bg,
     },
-    modalActions: { flexDirection: "column", gap: spacing.md, width: "100%" },
+    modalActions: { flexDirection: "row", gap: spacing.md, width: "100%" },
     modalActionsRow: { flexDirection: "row", gap: 12, width: "100%" },
     modalCancelBtn: {
-      height: 46,
+      flex: 1,
+      height: 56,
       borderRadius: radius.md,
       borderCurve: "continuous",
       alignItems: "center",
@@ -754,7 +755,7 @@ function buildStyles(colors, shadows) {
       color: colors.textSecondary,
     },
     modalSaveBtn: {
-      width: "100%",
+      flex: 1,
       height: 56,
       borderRadius: radius.md,
       borderCurve: "continuous",
