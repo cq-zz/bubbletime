@@ -212,7 +212,9 @@ export default function AddEditScreen() {
           </View>
 
           <View style={styles.fieldGroup}>
-            <Text style={styles.fieldLabel}>{t('durable.category')}</Text>
+            <Text style={styles.fieldLabel}>
+              {t('durable.category')} <Text style={styles.fieldRequired}>*</Text>
+            </Text>
             <View style={styles.categoryGrid}>
               {enabledCats.map((cat) => {
                 const isBuiltinCat = ITEM_CATEGORIES.includes(cat);
@@ -464,7 +466,9 @@ export default function AddEditScreen() {
         {/* Status & Notes */}
         <View style={styles.formCard}>
           <View style={styles.fieldGroup}>
-            <Text style={styles.fieldLabel}>{t('durable.status')}</Text>
+            <Text style={styles.fieldLabel}>
+              {t('durable.status')} <Text style={styles.fieldRequired}>*</Text>
+            </Text>
             <View style={styles.statusRow}>
               {DURABLE_STATUS_OPTIONS.map((opt) => (
                 <Pressable
@@ -578,6 +582,8 @@ function buildStyles(colors, shadows) {
     backgroundColor: colors.input.bg,
     borderRadius: radius.md,
     borderCurve: "continuous",
+    borderWidth: 1,
+    borderColor: colors.border,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     fontSize: 14,
@@ -714,8 +720,10 @@ function buildStyles(colors, shadows) {
     backgroundColor: colors.input.bg,
     borderRadius: radius.md,
     borderCurve: "continuous",
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
     fontSize: 14,
     fontWeight: "500",
     color: colors.textPrimary,
@@ -730,8 +738,10 @@ function buildStyles(colors, shadows) {
     backgroundColor: colors.input.bg,
     borderRadius: radius.md,
     borderCurve: "continuous",
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
     fontSize: 14,
     fontWeight: "500",
     color: colors.textPrimary,

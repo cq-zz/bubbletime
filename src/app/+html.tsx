@@ -31,7 +31,7 @@ export default function Root({ children }: PropsWithChildren) {
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", function () {
     navigator.serviceWorker
-      .register("${p("/sw.js")}")
+      .register("/sw.js")
       .then(function (reg) {
         console.log("SW registered:", reg.scope);
       })

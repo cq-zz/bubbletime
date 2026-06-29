@@ -145,12 +145,12 @@ export default function AddEditScreen() {
         </View>
 
         <View style={styles.fieldGroup}>
-          <Text style={styles.fieldLabel}>{t("importantDate.image")}</Text>
+          <Text style={styles.fieldLabel}>{t("importantDate.attachment")}</Text>
           <ImageUploadField
             value={image}
             onChange={setImage}
-            placeholder={t("importantDate.imagePlaceholder")}
-            hint={t("importantDate.imageHint")}
+            placeholder={t("importantDate.attachmentPlaceholder")}
+            hint={t("importantDate.attachmentHint")}
           />
         </View>
 
@@ -239,9 +239,9 @@ function buildStyles(colors, shadows) {
     fieldRequired: { color: colors.accent.red },
     fieldError: { color: colors.accent.red, fontSize: 12, fontWeight: "500", lineHeight: 16, marginLeft: 4 },
     textInput: {
-      backgroundColor: colors.input.bg, borderRadius: radius.lg, borderCurve: "continuous",
-      paddingHorizontal: spacing.lg, paddingVertical: spacing.lg, fontSize: 15,
-      fontWeight: "500", color: colors.textPrimary, borderWidth: 1, borderColor: colors.input.border,
+      backgroundColor: colors.input.bg, borderRadius: radius.md, borderCurve: "continuous",
+      paddingHorizontal: spacing.lg, paddingVertical: spacing.md, fontSize: 14,
+      fontWeight: "500", color: colors.textPrimary, borderWidth: 1, borderColor: colors.border,
     },
     textInputError: { borderWidth: 2, borderColor: colors.accent.red },
     textArea: { minHeight: 120 },
@@ -270,7 +270,7 @@ function buildStyles(colors, shadows) {
     reminderDaysInput: {
       backgroundColor: colors.input.bg, borderRadius: radius.md, borderCurve: "continuous",
       paddingHorizontal: spacing.md, paddingVertical: spacing.sm, fontSize: 14, fontWeight: "500",
-      color: colors.textPrimary, borderWidth: 1, borderColor: colors.input.border, width: 60, textAlign: "center",
+      color: colors.textPrimary, borderWidth: 1, borderColor: colors.border, width: 60, textAlign: "center",
     },
     errorBar: {
       marginHorizontal: spacing.xl, marginBottom: spacing.md, paddingVertical: spacing.sm,

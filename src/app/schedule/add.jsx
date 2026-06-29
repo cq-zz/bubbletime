@@ -130,7 +130,7 @@ export default function AddEditScreen() {
         {/* Date Selectors — full width for datetime */}
         <View style={styles.fieldGroup}>
           <WheelPicker
-            label={t("schedule.startDate")}
+            label={t("schedule.startDate") + " *"}
             value={startDate}
             onChange={setStartDate}
             level="minute"
@@ -198,12 +198,12 @@ export default function AddEditScreen() {
 
         {/* Image Upload */}
         <View style={styles.fieldGroup}>
-          <Text style={styles.fieldLabel}>{t("schedule.image")}</Text>
+          <Text style={styles.fieldLabel}>{t("schedule.attachment")}</Text>
           <ImageUploadField
             value={image}
             onChange={setImage}
-            placeholder={t("schedule.imagePlaceholder")}
-            hint={t("schedule.imageHint")}
+            placeholder={t("schedule.attachmentPlaceholder")}
+            hint={t("schedule.attachmentHint")}
           />
         </View>
 
@@ -315,15 +315,15 @@ function buildStyles(colors, shadows) {
   },
   textInput: {
     backgroundColor: colors.input.bg,
-    borderRadius: radius.lg,
+    borderRadius: radius.md,
     borderCurve: "continuous",
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.lg,
-    fontSize: 15,
+    paddingVertical: spacing.md,
+    fontSize: 14,
     fontWeight: "500",
     color: colors.textPrimary,
     borderWidth: 1,
-    borderColor: colors.input.border,
+    borderColor: colors.border,
   },
   textInputError: {
     borderWidth: 2,

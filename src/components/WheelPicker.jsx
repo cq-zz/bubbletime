@@ -12,7 +12,7 @@ import {
     View,
 } from "react-native";
 import { useTranslation } from "react-i18next";
-import { useTheme, radius } from "../utils/theme";
+import { useTheme, radius, spacing } from "../utils/theme";
 import { MAX_YEAR_DEFAULT, MIN_YEAR_DEFAULT, STORAGE_KEYS } from "../utils/constant";
 
 const LEVEL_CONFIG = {
@@ -273,8 +273,8 @@ function buildStyles(colors) {
     backgroundColor: colors.input.bg,
     borderRadius: radius.md,
     borderCurve: "continuous",
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
     borderWidth: 1.5,
     borderColor: "transparent",
     minHeight: 48,

@@ -276,7 +276,7 @@ export default function AddEditScreen() {
           </View>
           <View style={styles.fieldGroup}>
             <WheelPicker
-              label={t("bills.time")}
+              label={t("bills.time") + " *"}
               value={consumptionDate}
               onChange={isSourced ? undefined : setConsumptionDate}
               level="minute"
@@ -288,7 +288,7 @@ export default function AddEditScreen() {
         <View style={styles.categorySection}>
           <View style={styles.categoryHeader}>
             <Text style={styles.categoryTitle}>
-              {t("bills.selectCategory")}
+              {t("bills.selectCategory")} *
             </Text>
           </View>
           <View style={styles.categoryGrid}>

@@ -107,11 +107,7 @@ export const IMAGE_ALLOWED_MIME_TYPES = [
   "image/jpeg",
   "image/jpg",
   "image/png",
-  "image/gif",
 ];
-
-export const IMAGE_MAX_FILE_SIZE_MB = 10;
-export const IMAGE_MAX_FILES_PER_UPLOAD = 1;
 
 // ═══════════════════════════════════════════════
 // Categories (English keys, display via i18n)
