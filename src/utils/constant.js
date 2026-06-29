@@ -282,7 +282,7 @@ export const LANGUAGE_LIST = [
  * 默认语言
  * 注意:应用启动时会优先检测系统语言,此值仅作为最终回退值
  */
-export const DEFAULT_LANGUAGE = "zh-CN";
+export const DEFAULT_LANGUAGE = "en";
 
 // ═══════════════════════════════════════════════
 // Currency

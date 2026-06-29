@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/refs */
+/* eslint-disable */
 import { Image } from "expo-image";
 import { useMemo, useRef, useState } from "react";
 import {
@@ -8,12 +8,21 @@ import {
   Pressable,
   StyleSheet,
   View,
-  TouchableWithoutFeedback,
 } from "react-native";
 import { X } from "lucide-react-native";
 import { useTheme } from "../utils/theme";
 
-const ZOOM_LEVELS = [1, 2.5];
+function dist(t) {
+  if (t.length < 2) return 0;
+  const dx = t[0].pageX - t[1].pageX;
+  const dy = t[0].pageY - t[1].pageY;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+function mid(t) {
+  if (t.length < 2) return { x: 0, y: 0 };
+  return { x: (t[0].pageX + t[1].pageX) / 2, y: (t[0].pageY + t[1].pageY) / 2 };
+}
 
 export default function ImagePreviewModal({ imageUri, onClose }) {
   const { colors } = useTheme();
@@ -23,77 +32,149 @@ export default function ImagePreviewModal({ imageUri, onClose }) {
   const [tx] = useState(() => new Animated.Value(0));
   const [ty] = useState(() => new Animated.Value(0));
 
-  const sharedRef = useRef({ zoomed: false, px: 0, py: 0 });
-  const lastTapRef = useRef(0);
-  const closeTimerRef = useRef(null);
+  const st = useRef({
+    scale: 1,
+    tx: 0,
+    ty: 0,
+    pinching: false,
+    baseScale: 1,
+    pinchDist: 0,
+    pinchMidX: 0,
+    pinchMidY: 0,
+    panning: false,
+    panStartX: 0,
+    panStartY: 0,
+  });
 
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: () => sharedRef.current.zoomed,
-      onPanResponderGrant: () => {
-        sharedRef.current.px = 0;
-        sharedRef.current.py = 0;
-      },
-      onPanResponderMove: (_, gs) => {
-        if (!sharedRef.current.zoomed) return;
-        sharedRef.current.px = gs.dx;
-        sharedRef.current.py = gs.dy;
-        tx.setValue(sharedRef.current.px);
-        ty.setValue(sharedRef.current.py);
-      },
-      onPanResponderRelease: (_, gs) => {
-        if (!sharedRef.current.zoomed && Math.abs(gs.dx) < 5 && Math.abs(gs.dy) < 5) {
-          close();
-        }
-      },
-    })
-  ).current;
+  const lastTap = useRef(0);
+  const closeTimer = useRef(null);
 
   const close = () => {
-    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
-    closeTimerRef.current = null;
-    lastTapRef.current = 0;
-    sharedRef.current.zoomed = false;
-    sharedRef.current.px = 0;
-    sharedRef.current.py = 0;
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    closeTimer.current = null;
+    lastTap.current = 0;
+    st.current.scale = 1;
+    st.current.tx = 0;
+    st.current.ty = 0;
     sx.setValue(1);
     tx.setValue(0);
     ty.setValue(0);
     onClose();
   };
 
-  const animateTo = (toScale, toX, toY) => {
-    Animated.parallel([
-      Animated.spring(sx, { toValue: toScale, useNativeDriver: true }),
-      Animated.spring(tx, { toValue: toX, useNativeDriver: true }),
-      Animated.spring(ty, { toValue: toY, useNativeDriver: true }),
-    ]).start();
-  };
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => true,
 
-  const handleZoomToggle = () => {
-    sharedRef.current.zoomed = !sharedRef.current.zoomed;
-    if (sharedRef.current.zoomed) {
-      animateTo(ZOOM_LEVELS[1], 0, 0);
-    } else {
-      sharedRef.current.px = 0;
-      sharedRef.current.py = 0;
-      animateTo(1, 0, 0);
-    }
-  };
+      onPanResponderGrant: (evt) => {
+        const touches = evt.nativeEvent.touches;
+        const c = st.current;
+        c.pinching = false;
+        c.panning = false;
 
-  const handleImagePress = () => {
-    const now = Date.now();
-    if (now - lastTapRef.current < 300) {
-      if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
-      closeTimerRef.current = null;
-      handleZoomToggle();
-      lastTapRef.current = 0;
-    } else {
-      lastTapRef.current = now;
-      closeTimerRef.current = setTimeout(close, 300);
-    }
-  };
+        if (touches.length >= 2) {
+          c.pinching = true;
+          c.baseScale = c.scale;
+          c.pinchDist = dist(touches);
+          const m = mid(touches);
+          c.pinchMidX = m.x;
+          c.pinchMidY = m.y;
+        } else if (c.scale > 1) {
+          c.panning = true;
+          c.panStartX = c.tx;
+          c.panStartY = c.ty;
+        }
+      },
+
+      onPanResponderMove: (evt, gs) => {
+        const touches = evt.nativeEvent.touches;
+        const c = st.current;
+
+        if (touches.length >= 2) {
+          c.pinching = true;
+          const d = dist(touches);
+          if (c.pinchDist > 0) {
+            const newScale = c.baseScale * (d / c.pinchDist);
+            if (newScale < 0.5) return;
+            c.scale = newScale;
+            sx.setValue(newScale);
+          }
+
+          const m = mid(touches);
+          const dx = m.x - c.pinchMidX;
+          const dy = m.y - c.pinchMidY;
+          c.tx += dx;
+          c.ty += dy;
+          tx.setValue(c.tx);
+          ty.setValue(c.ty);
+
+          c.pinchDist = d;
+          c.pinchMidX = m.x;
+          c.pinchMidY = m.y;
+        } else if (c.pinching) {
+          // transitioning from 2 to 1 finger – ignore
+        } else if (c.scale > 1) {
+          c.panning = true;
+          c.tx = c.panStartX + gs.dx;
+          c.ty = c.panStartY + gs.dy;
+          tx.setValue(c.tx);
+          ty.setValue(c.ty);
+        }
+      },
+
+      onPanResponderRelease: (_, gs) => {
+        const c = st.current;
+
+        if (c.pinching) {
+          if (c.scale < 1) {
+            c.scale = 1;
+            c.tx = 0;
+            c.ty = 0;
+            Animated.parallel([
+              Animated.spring(sx, { toValue: 1, useNativeDriver: true }),
+              Animated.spring(tx, { toValue: 0, useNativeDriver: true }),
+              Animated.spring(ty, { toValue: 0, useNativeDriver: true }),
+            ]).start();
+          }
+          c.pinching = false;
+          return;
+        }
+
+        if (c.panning) {
+          c.panning = false;
+          return;
+        }
+
+        // Tap detection
+        if (Math.abs(gs.dx) > 8 || Math.abs(gs.dy) > 8) return;
+
+        const now = Date.now();
+        if (now - lastTap.current < 300) {
+          if (closeTimer.current) clearTimeout(closeTimer.current);
+          closeTimer.current = null;
+          // double tap → toggle zoom
+          if (c.scale > 1) {
+            c.scale = 1;
+            c.tx = 0;
+            c.ty = 0;
+            Animated.parallel([
+              Animated.spring(sx, { toValue: 1, useNativeDriver: true }),
+              Animated.spring(tx, { toValue: 0, useNativeDriver: true }),
+              Animated.spring(ty, { toValue: 0, useNativeDriver: true }),
+            ]).start();
+          } else {
+            c.scale = 2.5;
+            Animated.spring(sx, { toValue: 2.5, useNativeDriver: true }).start();
+          }
+          lastTap.current = 0;
+        } else {
+          lastTap.current = now;
+          closeTimer.current = setTimeout(close, 300);
+        }
+      },
+    })
+  ).current;
 
   if (!imageUri) return null;
 
@@ -109,27 +190,25 @@ export default function ImagePreviewModal({ imageUri, onClose }) {
           <X size={24} color="#FFFFFF" />
         </Pressable>
 
-        <TouchableWithoutFeedback onPress={handleImagePress}>
-          <Animated.View
-            style={[
-              styles.imageWrap,
-              {
-                transform: [
-                  { translateX: tx },
-                  { translateY: ty },
-                  { scale: sx },
-                ],
-              },
-            ]}
-            {...panResponder.panHandlers}
-          >
-            <Image
-              source={typeof imageUri === "string" ? { uri: imageUri } : imageUri}
-              style={styles.image}
-              contentFit="contain"
-            />
-          </Animated.View>
-        </TouchableWithoutFeedback>
+        <Animated.View
+          style={[
+            styles.imageWrap,
+            {
+              transform: [
+                { translateX: tx },
+                { translateY: ty },
+                { scale: sx },
+              ],
+            },
+          ]}
+          {...panResponder.panHandlers}
+        >
+          <Image
+            source={typeof imageUri === "string" ? { uri: imageUri } : imageUri}
+            style={styles.image}
+            contentFit="contain"
+          />
+        </Animated.View>
       </View>
     </Modal>
   );

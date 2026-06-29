@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "泡泡时光",
+    "name": "BubbleTime",
     "slug": "bubbletime",
     "version": "1.0.0",
     "description": "泡泡时光 BubbleTime — 个人生活记录工具，集物品管理、财务记账、日程计划、纪念日提醒于一体。物品管理模块可记录物品购买价格、使用寿命、到期提醒，自动计算日均成本并支持状态筛选；财务记账模块支持52种货币、月度年度趋势对比、分类统计与Excel导出；日程计划模块支持优先级设置、清单子任务、进度追踪与到期提醒；纪念日模块自动计算下次日期和剩余天数，支持每年重复。内置统一提醒中心，自动汇总物品到期、日程截止和纪念日通知。支持深色/浅色主题切换、中英文双语、本地数据存储，数据可全量导出为Excel文件。适合个人记账、物品盘点、任务管理、生活备忘等多场景使用。Personal finance tracker, asset manager, task scheduler, and anniversary reminder — all-in-one life recorder with bilingual support, dark theme, and Excel export.",
@@ -43,8 +43,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "允许泡泡时光访问您的相册来选择头像",
-          "cameraPermission": "允许泡泡时光使用相机来拍照"
+          "photosPermission": "Allow BubbleTime to access your photos",
+          "cameraPermission": "Allow BubbleTime to use your camera"
         }
       ]
     ],
