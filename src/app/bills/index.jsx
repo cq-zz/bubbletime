@@ -20,7 +20,6 @@ import ChartRangePicker from "../../components/ChartRangePicker";
 import YearMonthPicker from "../../components/YearMonthPicker";
 import { DonutChart, BarLineChart } from "../../components/charts";
 import { useTranslation } from "react-i18next";
-import useBillScheduler from "../../hooks/useBillScheduler";
 
 const CURRENT_YEAR = new Date().getFullYear();
 const CURRENT_MONTH = new Date().getMonth() + 1;
@@ -34,7 +33,6 @@ export default function BillsListScreen() {
   const { colors, shadows } = useTheme();
   const { t } = useTranslation();
   const router = useRouter();
-  useBillScheduler();
   const [activeCategory, setActiveCategory] = useState(t("common.all"));
   const [search, setSearch] = useState("");
   const [items, setItems] = useState([]);

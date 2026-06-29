@@ -4,7 +4,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import useBillScheduler from "../../hooks/useBillScheduler";
 import {
     Animated,
     Easing,
@@ -348,7 +347,6 @@ export default function HomeScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const navigation = useNavigation();
-  useBillScheduler();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const { colors, typography, shadows, cardStyles, currencyIcon } = useTheme();

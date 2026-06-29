@@ -1,6 +1,5 @@
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import {
-    AlertTriangle,
     ArrowDownCircle,
     ArrowUpCircle,
     Check,
@@ -12,7 +11,6 @@ import {
     Pressable,
     ScrollView,
     StyleSheet,
-    Switch,
     Text,
     TextInput,
     View,
@@ -20,7 +18,6 @@ import {
 } from "react-native";
 
 import { useTranslation } from "react-i18next";
-import ConfirmModal from "../../components/ConfirmModal";
 import ImageUploadField from "../../components/ImageUploadField";
 import WheelPicker from "../../components/WheelPicker";
 import { fetchBillDetail, fetchSubmitBill } from "../../services/bills";
@@ -71,19 +68,6 @@ export default function AddEditScreen() {
   const [saveError, setSaveError] = useState("");
   const [source, setSource] = useState("");
   const [billType, setBillType] = useState("expense");
-  const [autoSchedule, setAutoSchedule] = useState(false);
-  const [scheduleType, setScheduleType] = useState("interval");
-  const [scheduleInterval, setScheduleInterval] = useState("1");
-  const [scheduleDay, setScheduleDay] = useState("1");
-  const [scheduleStartDate, setScheduleStartDate] = useState("");
-  const [scheduleEndDate, setScheduleEndDate] = useState("");
-
-  const [originalScheduleType, setOriginalScheduleType] = useState("");
-  const [originalScheduleInterval, setOriginalScheduleInterval] = useState("1");
-  const [originalScheduleDay, setOriginalScheduleDay] = useState("1");
-  const [originalScheduleStartDate, setOriginalScheduleStartDate] = useState("");
-  const [originalScheduleEndDate, setOriginalScheduleEndDate] = useState("");
-  const [showScheduleChangeModal, setShowScheduleChangeModal] = useState(false);
 
   const [enabledCats, setEnabledCats] = useState(ITEM_CATEGORIES);
   const [customCats, setCustomCats] = useState([]);
@@ -118,19 +102,6 @@ export default function AddEditScreen() {
         setSource(d.source || "");
         setBillType(d.billType || "expense");
         setReceiptImage(d.receiptImage || "");
-        setAutoSchedule(d.autoSchedule || false);
-        if (d.autoSchedule) {
-          setScheduleType(d.scheduleType || "interval");
-          setScheduleInterval(d.scheduleInterval || "1");
-          setScheduleDay(d.scheduleDay || "1");
-          setScheduleStartDate(d.scheduleStartDate || "");
-          setScheduleEndDate(d.scheduleEndDate || "");
-        }
-        setOriginalScheduleType(d.scheduleType || "");
-        setOriginalScheduleInterval(d.scheduleInterval || "1");
-        setOriginalScheduleDay(d.scheduleDay || "1");
-        setOriginalScheduleStartDate(d.scheduleStartDate || "");
-        setOriginalScheduleEndDate(d.scheduleEndDate || "");
       })
       .catch((e) => console.error(t("bills.loadFailed"), e));
   }, [id, t]);
@@ -145,39 +116,6 @@ export default function AddEditScreen() {
       if (amountEmpty) setTimeout(() => setAmountError(false), 2000);
       return;
     }
-    // 自动记账日期范围校验
-    if (autoSchedule) {
-      if (!scheduleStartDate || !scheduleEndDate) {
-        setSaveError(t("bills.scheduleDateRequired"));
-        setTimeout(() => setSaveError(""), 3000);
-        return;
-      }
-      const startD = new Date(scheduleStartDate);
-      const endD = new Date(scheduleEndDate);
-      if (endD <= startD) {
-        setSaveError(t("bills.scheduleDateOrder"));
-        setTimeout(() => setSaveError(""), 3000);
-        return;
-      }
-      if (startD.getFullYear() !== endD.getFullYear()) {
-        setSaveError(t("bills.scheduleSameYear"));
-        setTimeout(() => setSaveError(""), 3000);
-        return;
-      }
-    }
-    // 自动记账配置变更检测：编辑模板时修改了循环周期或时间段
-    const scheduleChanged =
-      isEditing && autoSchedule &&
-      (scheduleType !== originalScheduleType ||
-        scheduleInterval !== originalScheduleInterval ||
-        scheduleDay !== originalScheduleDay ||
-        scheduleStartDate !== originalScheduleStartDate ||
-        scheduleEndDate !== originalScheduleEndDate);
-
-    if (scheduleChanged) {
-      setShowScheduleChangeModal(true);
-      return;
-    }
 
     setSaving(true);
     setSaveError("");
@@ -190,16 +128,6 @@ export default function AddEditScreen() {
       notes,
       billType,
       receiptImage,
-      autoSchedule,
-      scheduleType: autoSchedule ? scheduleType : undefined,
-      scheduleInterval:
-        autoSchedule && scheduleType === "interval"
-          ? scheduleInterval
-          : undefined,
-      scheduleDay:
-        autoSchedule && scheduleType === "monthly" ? scheduleDay : undefined,
-      scheduleStartDate: autoSchedule ? scheduleStartDate : undefined,
-      scheduleEndDate: autoSchedule ? scheduleEndDate : undefined,
     });
     setSaving(false);
     if (res?.code !== 200) {
@@ -444,112 +372,7 @@ export default function AddEditScreen() {
           />
         </View>
 
-        {/* Auto Schedule */}
-        {isEditing && source ? null : (
-        <View style={styles.card}>
-          <View style={styles.scheduleToggleRow}>
-            <Text style={styles.scheduleToggleLabel}>
-              {t("bills.autoSchedule")}
-            </Text>
-            <Switch
-              value={autoSchedule}
-              onValueChange={setAutoSchedule}
-              trackColor={{ false: colors.border, true: colors.primary }}
-              thumbColor="#FFFFFF"
-              disabled={isSourced || isScheduleSourced}
-            />
-          </View>
-          <Text style={styles.scheduleHint}>
-            {t("bills.autoScheduleHint")}
-          </Text>
-          {autoSchedule ? (
-            <View style={styles.scheduleFields}>
-              <View style={styles.scheduleTypeRow}>
-                <Pressable
-                  style={[
-                    styles.scheduleTypeBtn,
-                    scheduleType === "interval" && styles.scheduleTypeBtnActive,
-                  ]}
-                  onPress={() => setScheduleType("interval")}
-                >
-                  <Text
-                    style={[
-                      styles.scheduleTypeBtnText,
-                      scheduleType === "interval" &&
-                        styles.scheduleTypeBtnTextActive,
-                    ]}
-                  >
-                    {t("bills.scheduleInterval")}
-                  </Text>
-                </Pressable>
-                <Pressable
-                  style={[
-                    styles.scheduleTypeBtn,
-                    scheduleType === "monthly" && styles.scheduleTypeBtnActive,
-                  ]}
-                  onPress={() => setScheduleType("monthly")}
-                >
-                  <Text
-                    style={[
-                      styles.scheduleTypeBtnText,
-                      scheduleType === "monthly" &&
-                        styles.scheduleTypeBtnTextActive,
-                    ]}
-                  >
-                    {t("bills.scheduleMonthly")}
-                  </Text>
-                </Pressable>
-              </View>
-              {scheduleType === "interval" ? (
-                <View style={styles.scheduleIntervalRow}>
-                  <Text style={styles.scheduleIntervalLabel}>
-                    {t("bills.every")}
-                  </Text>
-                  <TextInput
-                    style={styles.scheduleIntervalInput}
-                    value={scheduleInterval}
-                    onChangeText={setScheduleInterval}
-                    keyboardType="number-pad"
-                  />
-                  <Text style={styles.scheduleIntervalLabel}>
-                    {t("bills.days")}
-                  </Text>
-                </View>
-              ) : (
-                <View style={styles.scheduleIntervalRow}>
-                  <Text style={styles.scheduleIntervalLabel}>
-                    {t("bills.dayOfMonth")}
-                  </Text>
-                  <TextInput
-                    style={styles.scheduleIntervalInput}
-                    value={scheduleDay}
-                    onChangeText={(t) => {
-                      const v = t.replace(/[^0-9]/g, "");
-                      if (v === "" || (parseInt(v) >= 1 && parseInt(v) <= 31))
-                        setScheduleDay(v);
-                    }}
-                    keyboardType="number-pad"
-                  />
-                  <Text style={styles.scheduleIntervalLabel}>
-                    {t("bills.days")}
-                  </Text>
-                </View>
-              )}
-              <WheelPicker
-                label={t("bills.scheduleStart")}
-                value={scheduleStartDate}
-                onChange={setScheduleStartDate}
-                level="date"
-              />
-              <WheelPicker
-                label={t("bills.scheduleEnd")}
-                value={scheduleEndDate}
-                onChange={setScheduleEndDate}
-                level="date"
-              />
-            </View>
-          ) : null}
-        </View>)}
+
       </ScrollView>
 
       {/* Save Error */}
@@ -597,49 +420,6 @@ export default function AddEditScreen() {
           )}
         </Pressable>
       </View>
-      <ConfirmModal
-        visible={showScheduleChangeModal}
-        onClose={() => setShowScheduleChangeModal(false)}
-        onConfirm={async () => {
-          setShowScheduleChangeModal(false);
-          setSaving(true);
-          const res = await fetchSubmitBill({
-            id,
-            amount,
-            name,
-            consumptionDate,
-            category,
-            notes,
-            billType,
-            receiptImage,
-            autoSchedule,
-            scheduleChanged: true,
-            scheduleType: autoSchedule ? scheduleType : undefined,
-            scheduleInterval:
-              autoSchedule && scheduleType === "interval"
-                ? scheduleInterval
-                : undefined,
-            scheduleDay:
-              autoSchedule && scheduleType === "monthly"
-                ? scheduleDay
-                : undefined,
-            scheduleStartDate: autoSchedule ? scheduleStartDate : undefined,
-            scheduleEndDate: autoSchedule ? scheduleEndDate : undefined,
-          });
-          setSaving(false);
-          if (res?.code !== 200) {
-            setSaveError(res?.message || t("common.saveFailed"));
-            setTimeout(() => setSaveError(""), 3000);
-            return;
-          }
-          setSaved(true);
-          setTimeout(() => router.back(), 800);
-        }}
-        title={t("bills.scheduleRegenerateTitle")}
-        description={t("bills.scheduleRegenerateMsg")}
-        confirmText={t("common.confirm")}
-        icon={AlertTriangle}
-      />
     </View>
   );
 }
@@ -909,75 +689,6 @@ function buildStyles(colors, shadows) {
       fontSize: 18,
       fontWeight: "700",
       lineHeight: 24,
-    },
-    scheduleToggleRow: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-    },
-    scheduleToggleLabel: {
-      color: colors.textPrimary,
-      fontSize: 14,
-      fontWeight: "600",
-    },
-    scheduleHint: {
-      color: colors.textTertiary,
-      fontSize: 12,
-      lineHeight: 18,
-      marginTop: spacing.xs,
-    },
-    scheduleFields: {
-      gap: spacing.md,
-      marginTop: spacing.sm,
-    },
-    scheduleTypeRow: {
-      flexDirection: "row",
-      gap: spacing.sm,
-    },
-    scheduleTypeBtn: {
-      flex: 1,
-      paddingVertical: spacing.sm,
-      borderRadius: radius.md,
-      borderCurve: "continuous",
-      borderWidth: 1,
-      borderColor: colors.border,
-      alignItems: "center",
-      backgroundColor: colors.surfaceFrost,
-    },
-    scheduleTypeBtnActive: {
-      borderColor: colors.primary,
-      backgroundColor: hexToRgba(colors.primary, 0.08),
-    },
-    scheduleTypeBtnText: {
-      color: colors.textTertiary,
-      fontSize: 12,
-      fontWeight: "600",
-    },
-    scheduleTypeBtnTextActive: {
-      color: colors.primary,
-    },
-    scheduleIntervalRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: spacing.sm,
-    },
-    scheduleIntervalLabel: {
-      color: colors.textSecondary,
-      fontSize: 13,
-      fontWeight: "500",
-    },
-    scheduleIntervalInput: {
-      borderWidth: 1,
-      borderColor: colors.border,
-      borderRadius: radius.md,
-      borderCurve: "continuous",
-      paddingVertical: spacing.sm,
-      paddingHorizontal: spacing.lg,
-      fontSize: 14,
-      fontWeight: "600",
-      color: colors.textPrimary,
-      textAlign: "center",
-      minWidth: 60,
     },
   });
 }

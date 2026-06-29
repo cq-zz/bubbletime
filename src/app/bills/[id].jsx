@@ -10,7 +10,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import ConfirmModal from "../../components/ConfirmModal";
-import { fetchBillDetail, fetchDeleteBill, fetchGeneratedBillList } from "../../services/bills";
+import { fetchBillDetail, fetchDeleteBill } from "../../services/bills";
 import { getCustomCategories, resolveCategoryIcon } from "../../services/category";
 import { CATEGORY_ICON } from "../../utils/constant";
 import { getCurrency, hexToRgba, radius, spacing, useTheme } from "../../utils/theme";
@@ -30,8 +30,6 @@ export default function BillsDetailScreen() {
   const [detail, setDetail] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [childRecords, setChildRecords] = useState([]);
-  const [childRecordsLoading, setChildRecordsLoading] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [customCats, setCustomCats] = useState([]);
@@ -40,18 +38,6 @@ export default function BillsDetailScreen() {
   useEffect(() => { getCustomCategories().then(setCustomCats); }, []);
 
   const styles = useMemo(() => buildStyles(colors, shadows), [colors, shadows]);
-
-  const loadChildRecords = useCallback(async (templateId) => {
-    setChildRecordsLoading(true);
-    try {
-      const res = await fetchGeneratedBillList(templateId);
-      if (res?.code === 200) {
-        setChildRecords(res.data || []);
-      }
-    } catch {} finally {
-      setChildRecordsLoading(false);
-    }
-  }, []);
 
   const loadBillDetail = useCallback(() => {
     if (!billId) {
@@ -66,11 +52,6 @@ export default function BillsDetailScreen() {
       .then((res) => {
         if (res?.code === 200 && res.data) {
           setDetail(res.data);
-          if (res.data.autoSchedule) {
-            loadChildRecords(billId);
-          } else {
-            setChildRecords([]);
-          }
         } else {
           setDetail(null);
           setError(res?.message || t("bills.billNotFound"));
@@ -81,7 +62,7 @@ export default function BillsDetailScreen() {
         setError(e?.message || t("bills.loadFailed"));
       })
       .finally(() => setLoading(false));
-  }, [billId, t, loadChildRecords]);
+  }, [billId, t]);
 
   useFocusEffect(loadBillDetail);
 
@@ -243,46 +224,7 @@ export default function BillsDetailScreen() {
           ) : null}
         </View>
 
-        {/* 源数据详情：显示已生成的子级记录 */}
-        {detail.autoSchedule ? (
-          <View style={styles.childRecordsSection}>
-            <Text style={styles.childRecordsTitle}>
-              {t("bills.generatedRecords")}（{childRecords.length}）
-            </Text>
-            {childRecordsLoading ? (
-              <Text style={styles.childRecordsEmpty}>{t("common.loading")}</Text>
-            ) : childRecords.length === 0 ? (
-              <Text style={styles.childRecordsEmpty}>
-                {t("bills.noGeneratedRecords")}
-              </Text>
-            ) : (
-              <View style={styles.childRecordsList}>
-                {childRecords.map((child) => (
-                  <View key={child.id} style={styles.childRecordItem}>
-                    <View style={styles.childRecordInfo}>
-                      <Text style={styles.childRecordName} numberOfLines={1}>
-                        {child.name}
-                      </Text>
-                      <Text style={styles.childRecordDate}>
-                        {child.consumptionDate}
-                      </Text>
-                    </View>
-                    <Text
-                      style={[
-                        styles.childRecordAmount,
-                        child.billType === "income" &&
-                          styles.recordAmountIncome,
-                      ]}
-                    >
-                      {getCurrency().icon}
-                      {child.amount?.toFixed(2)}
-                    </Text>
-                  </View>
-                ))}
-              </View>
-            )}
-          </View>
-        ) : null}
+
       </ScrollView>
 
       <View style={styles.bottomBar}>
@@ -547,75 +489,5 @@ function buildStyles(colors, shadows) {
     },
     saveBtnPressed: { opacity: 0.9, transform: [{ scale: 0.98 }] },
     saveBtnText: { color: "#FFFFFF", fontSize: 13, fontWeight: "700" },
-    childRecordsSection: {
-      backgroundColor: colors.surfaceFrost,
-      borderRadius: radius.lg,
-      borderCurve: "continuous",
-      padding: spacing.xl,
-      gap: spacing.md,
-      borderWidth: 1,
-      borderColor: colors.border,
-      ...shadows.card,
-    },
-    childRecordsTitle: {
-      color: colors.textPrimary,
-      fontSize: 14,
-      fontWeight: "700",
-      lineHeight: 20,
-    },
-    childRecordsEmpty: {
-      color: colors.textTertiary,
-      fontSize: 12,
-      fontWeight: "500",
-      lineHeight: 18,
-      textAlign: "center",
-      paddingVertical: spacing.lg,
-    },
-    childRecordsList: {
-      gap: spacing.sm,
-    },
-    childRecordItem: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: spacing.sm,
-      paddingVertical: spacing.sm,
-      paddingHorizontal: spacing.md,
-      borderRadius: radius.md,
-      backgroundColor: colors.input.bg,
-    },
-    childRecordInfo: {
-      flex: 1,
-      minWidth: 0,
-      gap: 2,
-    },
-    childRecordName: {
-      color: colors.textPrimary,
-      fontSize: 13,
-      fontWeight: "600",
-      lineHeight: 18,
-    },
-    childRecordDate: {
-      color: colors.textTertiary,
-      fontSize: 11,
-      fontWeight: "500",
-      lineHeight: 15,
-    },
-    childRecordAmount: {
-      color: colors.accent.red,
-      fontSize: 13,
-      fontWeight: "700",
-      lineHeight: 18,
-    },
-    recordAmountIncome: {
-      color: colors.accent.green,
-    },
-    childRecordAction: {
-      width: 30,
-      height: 30,
-      borderRadius: 15,
-      alignItems: "center",
-      justifyContent: "center",
-      backgroundColor: colors.surfaceFrost,
-    },
   });
 }
