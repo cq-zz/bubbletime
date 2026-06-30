@@ -47,6 +47,20 @@ import {
     UtensilsCrossed,
     Wifi,
     Zap,
+    Sun as WeatherSun,
+    Cloud,
+    CloudSun,
+    CloudDrizzle,
+    CloudRain,
+    CloudLightning,
+    CloudSnow,
+    CloudHail,
+    CloudFog,
+    Cloudy,
+    Haze,
+    Wind,
+    Tornado,
+    Rainbow,
 } from "lucide-react-native";
 
 // ═══════════════════════════════════════════════
@@ -96,6 +110,7 @@ export const DB_TABLES = {
   schedules: "schedules",
   reminders: "reminders",
   importantDates: "important_dates",
+  diaries: "diaries",
   settings: "settings",
 };
 
@@ -254,6 +269,13 @@ export const HOME_MODULES = [
     metaColor: "#A77DCD",
   },
   {
+    id: "diary",
+    i18nKey: "home.diary",
+    accent: "#D4A574",
+    icon: BookOpen,
+    metaColor: "#D4A574",
+  },
+  {
     id: "important-date",
     i18nKey: "home.importantDate",
     accent: "#E93D82",
@@ -373,6 +395,48 @@ export const MOODS = [
   { emoji: "😤", key: "angry", score: 1 },
   { emoji: "😫", key: "exhausted", score: 1 },
 ];
+
+// ═══════════════════════════════════════════════
+// Diary 模块常量
+// ═══════════════════════════════════════════════
+
+export const WEATHER_OPTIONS = [
+  { value: "sunny", icon: "WeatherSun", emoji: "☀️" },
+  { value: "clearNight", icon: "Moon", emoji: "🌙" },
+  { value: "partlyCloudy", icon: "CloudSun", emoji: "⛅" },
+  { value: "cloudy", icon: "Cloud", emoji: "☁️" },
+  { value: "overcast", icon: "Cloudy", emoji: "☁️" },
+  { value: "drizzle", icon: "CloudDrizzle", emoji: "🌦️" },
+  { value: "rainy", icon: "CloudRain", emoji: "🌧️" },
+  { value: "thunderstorm", icon: "CloudLightning", emoji: "⛈️" },
+  { value: "snowy", icon: "CloudSnow", emoji: "❄️" },
+  { value: "sleet", icon: "CloudSnow", emoji: "🌨️" },
+  { value: "hail", icon: "CloudHail", emoji: "🌨️" },
+  { value: "foggy", icon: "CloudFog", emoji: "🌫️" },
+  { value: "hazy", icon: "Haze", emoji: "🌁" },
+  { value: "windy", icon: "Wind", emoji: "💨" },
+  { value: "tornado", icon: "Tornado", emoji: "🌪️" },
+  { value: "rainbow", icon: "Rainbow", emoji: "🌈" },
+];
+
+export const WEATHER_ICON_MAP = {
+  sunny: WeatherSun,
+  clearNight: Moon,
+  partlyCloudy: CloudSun,
+  cloudy: Cloud,
+  overcast: Cloudy,
+  drizzle: CloudDrizzle,
+  rainy: CloudRain,
+  thunderstorm: CloudLightning,
+  snowy: CloudSnow,
+  sleet: CloudSnow,
+  hail: CloudHail,
+  foggy: CloudFog,
+  hazy: Haze,
+  windy: Wind,
+  tornado: Tornado,
+  rainbow: Rainbow,
+};
 
 // ═══════════════════════════════════════════════
 // Important Date 模块常量

@@ -22,6 +22,9 @@ import { CATEGORY_ICON,
 } from "../../utils/constant";
 
 import { getCurrency, hexToRgba, radius, spacing, useTheme } from "../../utils/theme";
+import YearMonthPicker from "../../components/YearMonthPicker";
+
+const CURRENT_YEAR = new Date().getFullYear();
 
 function getStatusStyle(type) {
   return DURABLE_STATUS_STYLES[type] || DURABLE_STATUS_STYLES.active;
@@ -35,6 +38,8 @@ export default function DurableListScreen() {
   const [activeKey, setActiveKey] = useState(DURABLE_FILTER_KEYS.all);
   const [search, setSearch] = useState("");
   const [items, setItems] = useState([]);
+  const [selectedYear, setSelectedYear] = useState(CURRENT_YEAR);
+  const [selectedMonth, setSelectedMonth] = useState(null);
   const refreshKey = Array.isArray(refresh) ? refresh[0] : refresh;
   const loadItems = useCallback(() => {
     fetchDurableList()
@@ -77,7 +82,15 @@ export default function DurableListScreen() {
       return `${(n / 10000).toFixed(n % 10000 === 0 ? 0 : 2)}${t("durable.unitTenThousand")}`;
     return null;
   })();
-  const filteredItems = items.filter((item) => {
+  const dateFilteredItems = items.filter((item) => {
+    if (!selectedYear) return true;
+    const d = item.purchaseDate || "";
+    const prefix = selectedMonth
+      ? `${selectedYear}-${String(selectedMonth).padStart(2, "0")}`
+      : `${selectedYear}`;
+    return d.startsWith(prefix);
+  });
+  const filteredItems = dateFilteredItems.filter((item) => {
     if (activeKey !== DURABLE_FILTER_KEYS.all && item.status !== activeKey)
       return false;
     if (search && !item.name.includes(search)) return false;
@@ -85,6 +98,11 @@ export default function DurableListScreen() {
   });
 
   const styles = useMemo(() => buildStyles(colors, shadows), [colors, shadows]);
+
+  const handleDateChange = useCallback(({ year, month }) => {
+    setSelectedYear(year);
+    setSelectedMonth(month);
+  }, []);
 
   const renderCategory = (cat) => {
     const isActive = activeKey === cat.key;
@@ -213,6 +231,11 @@ export default function DurableListScreen() {
         </View>
 
         <View style={styles.stickyHeader}>
+          <YearMonthPicker
+            year={selectedYear}
+            month={selectedMonth}
+            onChange={handleDateChange}
+          />
           <View style={styles.searchWrap}>
             <Search
               size={18}
@@ -245,7 +268,12 @@ export default function DurableListScreen() {
         </View>
 
         <View style={styles.listContent}>
-          {filteredItems.map((item) => (
+          {filteredItems.length === 0 ? (
+            <View style={styles.emptyWrap}>
+              <Package size={48} color={hexToRgba(colors.textTertiary, 0.3)} />
+              <Text style={styles.emptyText}>{t("durable.empty")}</Text>
+            </View>
+          ) : filteredItems.map((item) => (
             <View key={item.id}>{renderItem({ item })}</View>
           ))}
         </View>
@@ -537,6 +565,13 @@ function buildStyles(colors, shadows) {
     },
     fabPressed: {
       transform: [{ scale: 0.92 }],
+    },
+    emptyWrap: {
+      alignItems: "center", justifyContent: "center",
+      paddingVertical: 60, gap: 12,
+    },
+    emptyText: {
+      fontSize: 14, fontWeight: "600", color: colors.textTertiary, textAlign: "center",
     },
     fabIcon: {
       fontSize: 32,

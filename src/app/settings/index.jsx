@@ -3,6 +3,7 @@ import { Stack, useRouter } from "expo-router";
 import {
     Banknote,
     Bell,
+    BookOpen,
     Calendar,
     CalendarCheck,
     CalendarHeart,
@@ -57,6 +58,7 @@ const MODULE_ICONS = {
   durable: Package,
   schedule: CalendarCheck,
   bills: ClipboardList,
+  diary: BookOpen,
   "important-date": CalendarHeart,
   "mood-trend": Smile,
 };
@@ -150,6 +152,7 @@ export default function SettingsScreen() {
   const [maxYear, setMaxYear] = useState(MAX_YEAR_DEFAULT);
   const [homeModulesExpanded, setHomeModulesExpanded] = useState(true);
 
+
   const styles = useMemo(() => buildStyles(colors, shadows, themeMode), [colors, shadows, themeMode]);
 
   const currentLanguage =
@@ -182,6 +185,7 @@ export default function SettingsScreen() {
         if (savedMinYear !== null) setMinYear(Number(savedMinYear));
         const savedMaxYear = await AsyncStorage.getItem(STORAGE_KEYS.maxYear);
         if (savedMaxYear !== null) setMaxYear(Number(savedMaxYear));
+
       } catch {
         if (!cancelled) {
           const vis = {};

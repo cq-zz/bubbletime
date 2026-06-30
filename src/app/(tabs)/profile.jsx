@@ -30,11 +30,15 @@ import {
   Sun,
   User,
   Smile,
+  BookOpen,
+  ClipboardList,
+  Package,
+  CalendarHeart,
 } from "lucide-react-native";
 import { setLanguage } from "../../i18n";
 import useAlert from "../../hooks/useAlert";
 import { hexToRgba, radius, spacing, useTheme } from "../../utils/theme";
-import { DEFAULT_CURRENCY, DEFAULT_LANGUAGE, STORAGE_KEYS } from "../../utils/constant";
+import { DEFAULT_CURRENCY, DEFAULT_LANGUAGE, HOME_MODULES, STORAGE_KEYS } from "../../utils/constant";
 import DataManagementCard from "../../components/DataManagementCard";
 import MoodCalendarModal from "../../components/MoodCalendarModal";
 import { on } from "../../utils/events";
@@ -148,6 +152,17 @@ export default function ProfileScreen() {
   };
 
   const styles = useMemo(() => buildStyles(colors, shadows), [colors, shadows]);
+
+  const MODULE_ICONS = {
+    durable: Package,
+    schedule: CalendarCheck,
+    bills: ClipboardList,
+    diary: BookOpen,
+    "important-date": CalendarHeart,
+    "mood-trend": Smile,
+  };
+
+  const quickAccessModules = HOME_MODULES.filter((m) => m.id !== "mood-trend");
 
   const CardItem = ({
     icon: Icon,
@@ -267,6 +282,36 @@ export default function ProfileScreen() {
               onPress={openEditModal}
               isLast
             />
+          </View>
+        </View>
+
+        {/* 功能入口 */}
+        <View style={styles.cardGroup}>
+          <View style={styles.cardHeader}>
+            <View style={styles.cardHeaderRow}>
+              <View style={[styles.cardItemIcon, { backgroundColor: hexToRgba(colors.primary, 0.12) }]}>
+                <FolderOpen size={18} color={colors.primary} />
+              </View>
+              <Text style={styles.groupLabel}>{t("settings.moduleQuickAccess")}</Text>
+            </View>
+            <Text style={styles.groupDesc}>{t("settings.moduleQuickAccessDesc")}</Text>
+          </View>
+          <View style={styles.cardList}>
+            {quickAccessModules.map((mod, idx) => {
+              const IconComponent = MODULE_ICONS[mod.id];
+              const route = mod.id === "important-date" ? "/important-date" : `/${mod.id}`;
+              const isLast = idx === quickAccessModules.length - 1;
+              return (
+                <CardItem
+                  key={mod.id}
+                  icon={IconComponent}
+                  iconBg={hexToRgba(mod.accent, 0.12)}
+                  label={t(mod.i18nKey)}
+                  onPress={() => router.push(route)}
+                  isLast={isLast}
+                />
+              );
+            })}
           </View>
         </View>
 

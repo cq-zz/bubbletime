@@ -147,6 +147,16 @@ const SCHEMA_STATEMENTS = [
     created_at TEXT DEFAULT (datetime('now','localtime')),
     updated_at TEXT DEFAULT (datetime('now','localtime'))
   )`,
+  `CREATE TABLE IF NOT EXISTS diaries (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    content TEXT DEFAULT '',
+    date TEXT DEFAULT '',
+    weather TEXT DEFAULT '',
+    image TEXT DEFAULT '',
+    created_at TEXT DEFAULT (datetime('now','localtime')),
+    updated_at TEXT DEFAULT (datetime('now','localtime'))
+  )`,
   `CREATE TABLE IF NOT EXISTS settings (
     key TEXT PRIMARY KEY,
     value TEXT DEFAULT ''
@@ -429,7 +439,7 @@ export async function setSetting(key, value) {
 
 export async function clearAllData() {
   const database = await getDb();
-  const tables = ["durables", "bills", "schedules", "reminders", "important_dates", "check_ins", "settings"];
+  const tables = ["durables", "bills", "schedules", "reminders", "important_dates", "check_ins", "diaries", "settings"];
   for (const table of tables) {
     await runSql(database, `DELETE FROM ${table}`);
   }

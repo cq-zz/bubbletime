@@ -186,6 +186,7 @@ const MODULE_ACCENTS = {
   durable: "#C78B4A",
   schedule: "#7B9FD4",
   bills: "#A77DCD",
+  diary: "#D4A574",
   "important-date": "#E93D82",
 };
 
@@ -382,6 +383,7 @@ export default function HomeScreen() {
       durable: t("home.durableDesc"),
       schedule: t("home.scheduleDesc"),
       bills: t("home.billsDesc"),
+      diary: t("home.diaryDesc"),
       "important-date": t("home.importantDateDesc"),
     }),
     [t],

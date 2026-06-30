@@ -11,7 +11,7 @@ import {
     TextInput,
     View,
 } from "react-native";
-import { BarChart3, Calendar, ChevronDown, ChevronUp, Clock, RefreshCw, Search, TrendingDown, TrendingUp } from "lucide-react-native";
+import { BarChart3, Calendar, ChevronDown, ChevronUp, Clock, Receipt, RefreshCw, Search, TrendingDown, TrendingUp } from "lucide-react-native";
 import { getCurrency, useTheme, hexToRgba, radius, spacing } from "../../utils/theme";
 import { fetchBillList, fetchBillMonthlyTrend, fetchBillCategoryBreakdown } from "../../services/bills";
 import { syncAllDurableBills } from "../../services/durable";
@@ -640,7 +640,12 @@ export default function BillsListScreen() {
         </View>
 
         {/* 两列网格列表 */}
-        {recordPairs.map((pair, idx) => (
+        {!loading && filteredItems.length === 0 ? (
+          <View style={styles.emptyWrap}>
+            <Receipt size={48} color={hexToRgba(colors.textTertiary, 0.3)} />
+            <Text style={styles.emptyText}>{t("bills.empty")}</Text>
+          </View>
+        ) : recordPairs.map((pair, idx) => (
           <View key={idx} style={styles.recordRow}>
             {renderRecordCard(pair[0])}{pair[1] ? (
               renderRecordCard(pair[1])
@@ -1004,6 +1009,13 @@ function buildStyles(colors, shadows) {
   },
   recordCardPlaceholder: {
     width: GRID_CARD_WIDTH,
+  },
+  emptyWrap: {
+    alignItems: "center", justifyContent: "center",
+    paddingVertical: 60, gap: 12,
+  },
+  emptyText: {
+    fontSize: 14, fontWeight: "600", color: colors.textTertiary, textAlign: "center",
   },
   recordCard: {
     width: GRID_CARD_WIDTH,

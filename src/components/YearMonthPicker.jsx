@@ -83,6 +83,7 @@ function PickerPanel({ currentYear, currentMonth, onSelect, onClose, yearOnly })
   const { colors } = useTheme();
   const styles = useMemo(() => buildStyles(colors), [colors]);
   const [viewYear, setViewYear] = useState(currentYear);
+  const [localMonth, setLocalMonth] = useState(currentMonth);
   const [minYear, setMinYear] = useState(MIN_YEAR_DEFAULT);
   const [maxYear, setMaxYear] = useState(MAX_YEAR_DEFAULT);
 
@@ -95,6 +96,11 @@ function PickerPanel({ currentYear, currentMonth, onSelect, onClose, yearOnly })
       if (maxVal !== null) setMaxYear(Number(maxVal));
     });
   }, []);
+
+  const handleYearChange = (y) => {
+    setViewYear(y);
+    setLocalMonth(null); // reset month selection when year changes
+  };
 
   const years = useMemo(() => {
     const list = [];
@@ -117,7 +123,7 @@ function PickerPanel({ currentYear, currentMonth, onSelect, onClose, yearOnly })
               <Text style={styles.headerBtnConfirm}>{t("common.confirm")}</Text>
             </Pressable>
           ) : (
-            <Pressable onPress={() => onSelect(viewYear, currentYear === viewYear ? currentMonth : null)}>
+            <Pressable onPress={() => onSelect(viewYear, localMonth)}>
               <Text style={styles.headerBtnConfirm}>{t("common.confirm")}</Text>
             </Pressable>
           )}
@@ -133,7 +139,7 @@ function PickerPanel({ currentYear, currentMonth, onSelect, onClose, yearOnly })
                     row * YEARS_PER_ROW,
                     row * YEARS_PER_ROW + YEARS_PER_ROW,
                   ).map((m) => {
-                    const isActive = currentYear === viewYear && currentMonth === m;
+                    const isActive = localMonth === m;
                     return (
                       <Pressable
                         key={m}
@@ -141,7 +147,7 @@ function PickerPanel({ currentYear, currentMonth, onSelect, onClose, yearOnly })
                           styles.monthCell,
                           isActive && styles.monthCellActive,
                         ]}
-                        onPress={() => onSelect(viewYear, m)}
+                        onPress={() => setLocalMonth(localMonth === m ? null : m)}
                       >
                         <Text
                           style={[
@@ -163,14 +169,14 @@ function PickerPanel({ currentYear, currentMonth, onSelect, onClose, yearOnly })
         {/* Year selector */}
         <View style={styles.yearHeader}>
           <Pressable
-            onPress={() => setViewYear((y) => Math.max(y - 1, minYear))}
+            onPress={() => handleYearChange(Math.max(viewYear - 1, minYear))}
             style={styles.yearNavBtn}
           >
             <ChevronLeft size={16} color={colors.textSecondary} />
           </Pressable>
           <Text style={styles.yearHeaderTitle}>{t("common.yearLabel", { year: viewYear })}</Text>
           <Pressable
-            onPress={() => setViewYear((y) => Math.min(y + 1, maxYear))}
+            onPress={() => handleYearChange(Math.min(viewYear + 1, maxYear))}
             style={styles.yearNavBtn}
           >
             <ChevronRight size={16} color={colors.textSecondary} />
@@ -191,7 +197,7 @@ function PickerPanel({ currentYear, currentMonth, onSelect, onClose, yearOnly })
                 <Pressable
                   key={y}
                   style={[styles.yearChip, isActive && styles.yearChipActive]}
-                  onPress={() => setViewYear(y)}
+                  onPress={() => handleYearChange(y)}
                 >
                   <Text
                     style={[

@@ -347,6 +347,7 @@ export const fetchSubmitDurable = async (data) => {
       await update(TABLE, id, fields);
       itemId = id;
     } else {
+      fields.created_at = new Date().toISOString().slice(0, 10);
       const result = await insert(TABLE, fields);
       itemId = result.id;
     }

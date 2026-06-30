@@ -131,6 +131,12 @@ export default function ImportantDateListScreen() {
         renderItem={renderItem}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={!loading ? (
+          <View style={styles.emptyWrap}>
+            <CalendarDays size={48} color={hexToRgba(colors.textTertiary, 0.3)} />
+            <Text style={styles.emptyText}>{t("importantDate.empty")}</Text>
+          </View>
+        ) : null}
       />
       <Pressable
         style={({ pressed }) => [styles.fab, pressed && styles.fabPressed]}
@@ -178,5 +184,12 @@ function buildStyles(colors, shadows) {
     fabPressed: { transform: [{ scale: 0.92 }] },
     fabIcon: { fontSize: 32, color: "#FFFFFF", fontWeight: "400", lineHeight: 34, marginTop: -2 },
     loadingWrap: { paddingVertical: spacing.xxl, alignItems: "center" },
+    emptyWrap: {
+      alignItems: "center", justifyContent: "center",
+      paddingVertical: 60, gap: 12,
+    },
+    emptyText: {
+      fontSize: 14, fontWeight: "600", color: colors.textTertiary, textAlign: "center",
+    },
   });
 }

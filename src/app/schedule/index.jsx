@@ -11,11 +11,14 @@ import {
     TextInput,
     View,
 } from "react-native";
-import { Bell, CalendarDays, CheckCircle, Circle, Clock, Loader2, Search } from "lucide-react-native";
+import { Bell, CalendarCheck, CalendarDays, CheckCircle, Circle, Clock, Loader2, Search } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { useTheme, hexToRgba, radius, spacing } from "../../utils/theme";
 import { fetchScheduleList, fetchSubmitSchedule } from "../../services/schedule";
 import { SCHEDULE_FILTER_KEYS } from "../../utils/constant";
+import YearMonthPicker from "../../components/YearMonthPicker";
+
+const CURRENT_YEAR = new Date().getFullYear();
 
 export default function ScheduleListScreen() {
   const { colors, shadows } = useTheme();
@@ -25,6 +28,8 @@ export default function ScheduleListScreen() {
   const [activeKey, setActiveKey] = useState(SCHEDULE_FILTER_KEYS.all);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [selectedYear, setSelectedYear] = useState(CURRENT_YEAR);
+  const [selectedMonth, setSelectedMonth] = useState(null);
 
   // 动态获取筛选分类
   const SCHEDULE_FILTER_CATEGORIES = useMemo(() => {
@@ -63,12 +68,14 @@ export default function ScheduleListScreen() {
 
   const loadSchedule = useCallback(() => {
     setLoading(true);
-    fetchScheduleList().then((res) => {
+    const params = { year: selectedYear };
+    if (selectedMonth) params.month = selectedMonth;
+    fetchScheduleList(params).then((res) => {
       if (res?.code === 200) setTasks((res.data || []).map(enrichTask));
     }).catch((e) => {
       console.error(t("schedule.loadFailed"), e);
     }).finally(() => setLoading(false));
-  }, [t]);
+  }, [t, selectedYear, selectedMonth]);
 
   useFocusEffect(useCallback(() => { loadSchedule(); }, [loadSchedule]));
 
@@ -84,6 +91,11 @@ export default function ScheduleListScreen() {
   });
 
   const styles = useMemo(() => buildStyles(colors, shadows), [colors, shadows]);
+
+  const handleDateChange = useCallback(({ year, month }) => {
+    setSelectedYear(year);
+    setSelectedMonth(month);
+  }, []);
 
   const renderCategory = (cat) => (
     <Pressable
@@ -187,6 +199,11 @@ export default function ScheduleListScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.headerContent}>
+        <YearMonthPicker
+          year={selectedYear}
+          month={selectedMonth}
+          onChange={handleDateChange}
+        />
         <View style={styles.searchWrap}>
           <Search size={18} color={colors.textTertiary} style={{ marginRight: 10 }} />
           <TextInput
@@ -221,6 +238,12 @@ export default function ScheduleListScreen() {
         renderItem={renderItem}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={!loading ? (
+          <View style={styles.emptyWrap}>
+            <CalendarCheck size={48} color={hexToRgba(colors.textTertiary, 0.3)} />
+            <Text style={styles.emptyText}>{t("schedule.empty")}</Text>
+          </View>
+        ) : null}
       />
       {/* FAB */}
       <Pressable
@@ -402,6 +425,13 @@ function buildStyles(colors, shadows) {
     fontWeight: "400",
     lineHeight: 34,
     marginTop: -2,
+  },
+  emptyWrap: {
+    alignItems: "center", justifyContent: "center",
+    paddingVertical: 60, gap: 12,
+  },
+  emptyText: {
+    fontSize: 14, fontWeight: "600", color: colors.textTertiary, textAlign: "center",
   },
   loadingWrap: {
     paddingVertical: spacing.xxl,

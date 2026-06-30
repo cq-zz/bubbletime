@@ -32,6 +32,7 @@ import {
     MOODS,
     STORAGE_KEYS,
     SCHEDULE_STATUS_OPTIONS,
+    WEATHER_OPTIONS,
 } from "../utils/constant";
 
 const DURABLE_STATUS_LABELS_KEYS = {
@@ -48,6 +49,7 @@ const EXPORT_MODULE_OPTIONS = [
   { id: "durable", i18nKey: "home.durable" },
   { id: "bills", i18nKey: "home.bills" },
   { id: "schedule", i18nKey: "home.schedule" },
+  { id: "diary", i18nKey: "home.diary" },
   { id: "important-date", i18nKey: "home.importantDate" },
   { id: "mood-trend", i18nKey: "moodTrend.title" },
 ];
@@ -129,7 +131,7 @@ export default function DataManagementCard({ style }) {
         transfer: t("bills.transfer"),
       };
 
-      const tableMap = { durable: "durables", bills: "bills", schedule: "schedules", "important-date": "important_dates", "mood-trend": "check_ins" };
+      const tableMap = { durable: "durables", bills: "bills", schedule: "schedules", diary: "diaries", "important-date": "important_dates", "mood-trend": "check_ins" };
       const allItems = await getAll(tableMap[exportModule]);
 
       const filterByDate = (items, dateField) => {
@@ -146,7 +148,7 @@ export default function DataManagementCard({ style }) {
         });
       };
 
-      const dateFields = { durable: "purchase_date", bills: "consumption_date", schedule: "end_date", "important-date": "date", "mood-trend": "check_date" };
+      const dateFields = { durable: "purchase_date", bills: "consumption_date", schedule: "end_date", diary: "date", "important-date": "date", "mood-trend": "check_date" };
       const filteredItems = filterByDate(allItems, dateFields[exportModule]);
 
       if (filteredItems.length === 0) {
@@ -217,6 +219,27 @@ export default function DataManagementCard({ style }) {
         IMG_COL = -1;
         prepData = filteredItems.map((item) => ({ vals: [safeVal(item.name ?? ""), safeVal(item.date ?? ""), item.type === "annual" ? t("importantDate.typeAnnual") : t("importantDate.typeOnce"), t(`importantDate.category${item.category ? item.category.charAt(0).toUpperCase() + item.category.slice(1) : "Other"}`), item.reminder_enabled ? t("common.yes") : t("common.no"), safeVal(item.notes ?? ""), safeVal(item.created_at ?? "")] }));
         sheetKey = "settings.excelSheetImportantDate";
+      } else if (exportModule === "diary") {
+        headers = [
+          t("settings.excelDiaryTitle"),
+          t("settings.excelDiaryDate"),
+          t("settings.excelDiaryWeather"),
+          t("settings.excelDiaryContent"),
+          t("settings.excelDiaryCreatedAt"),
+        ];
+        IMG_COL = -1;
+        const weatherLabels = {};
+        WEATHER_OPTIONS.forEach((w) => { weatherLabels[w.value] = t("diary.weather" + w.value.charAt(0).toUpperCase() + w.value.slice(1)); });
+        prepData = filteredItems.map((item) => ({
+          vals: [
+            safeVal(item.title ?? ""),
+            safeVal(item.date ?? ""),
+            safeVal(weatherLabels[item.weather] || item.weather || ""),
+            safeVal(item.content ?? ""),
+            safeVal(item.created_at ?? ""),
+          ],
+        }));
+        sheetKey = "settings.excelSheetDiary";
       } else if (exportModule === "mood-trend") {
         headers = [t("settings.excelMoodDate"), t("settings.excelMoodMood"), t("settings.excelMoodCreatedAt")];
         IMG_COL = -1;
@@ -408,6 +431,10 @@ export default function DataManagementCard({ style }) {
                   ? t("settings.yearSuffix", { year: exportYear })
                   : t("settings.yearMonthSuffix", { year: exportYear, month: exportMonth }),
               })}
+            </Text>
+
+            <Text style={styles.exportImageHint}>
+              {t("settings.exportImageHint")}
             </Text>
 
             <View style={styles.exportModuleSection}>
@@ -605,6 +632,7 @@ function buildStyles(colors) {
     },
     exportPickerValue: { fontSize: 18, fontWeight: "700", color: colors.textPrimary, minWidth: 50, textAlign: "center" },
     exportHint: { fontSize: 13, fontWeight: "400", color: colors.textTertiary, textAlign: "center", lineHeight: 18 },
+    exportImageHint: { fontSize: 11, fontWeight: "500", color: colors.accent.orange || "#FF8A4C", textAlign: "center", lineHeight: 16 },
     exportModuleSection: { gap: 10 },
     exportModuleTitle: { fontSize: 14, fontWeight: "600", color: colors.textSecondary },
     exportModuleRow: { flexDirection: "row", flexWrap: "wrap", gap: 8 },

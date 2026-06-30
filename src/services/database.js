@@ -15,7 +15,7 @@ async function ensureStore() {
     const raw = await AsyncStorage.getItem(storeKey());
     memoryStore = raw
       ? JSON.parse(raw)
-      : { durables: [], bills: [], schedules: [], reminders: [], check_ins: [], settings: [] };
+      : { durables: [], bills: [], schedules: [], reminders: [], check_ins: [], diaries: [], settings: [] };
     return memoryStore;
   })();
   return initPromise;
@@ -77,6 +77,7 @@ function getTable(table) {
     schedules: "schedules",
   reminders: "reminders",
   check_ins: "check_ins",
+  diaries: "diaries",
   settings: "settings",
 };
   return map[table] || table;
@@ -271,6 +272,7 @@ export async function clearAllData() {
     reminders: [],
     check_ins: [],
     important_dates: [],
+    diaries: [],
     settings: [],
   };
   await persist();

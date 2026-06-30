@@ -55,7 +55,17 @@ function computeProgress(checklist) {
 
 export const fetchScheduleList = async (params = {}) => {
   try {
-    const rows = await getAll(TABLE, "created_at DESC");
+    let rows = await getAll(TABLE, "created_at DESC");
+    const { year, month } = params;
+    if (year) {
+      const prefix = month
+        ? `${year}-${String(month).padStart(2, "0")}`
+        : `${year}`;
+      rows = rows.filter((item) => {
+        const d = normalizeDate(item.created_at);
+        return d.startsWith(prefix);
+      });
+    }
     const today = new Date().toISOString().slice(0, 10);
     const data = rows.map((item) => {
       // 自动状态：超过结束日期且未完成则标记为"未完成"
@@ -76,6 +86,7 @@ export const fetchScheduleList = async (params = {}) => {
         endDate: normalizeDate(item.end_date),
         reminderEnabled: Number(item.reminder_enabled) === 1,
         progress: computeProgress(item.checklist),
+        date: normalizeDate(item.created_at) || normalizeDate(item.start_date),
       };
     });
     return wrapSuccess(data);
@@ -147,6 +158,7 @@ export const fetchSubmitSchedule = async (data) => {
       await update(TABLE, id, fields);
       return wrapSuccess({ id }, "更新成功");
     }
+    fields.created_at = new Date().toISOString().slice(0, 10);
     const result = await insert(TABLE, fields);
     return wrapSuccess(result, "保存成功");
   } catch (e) {
