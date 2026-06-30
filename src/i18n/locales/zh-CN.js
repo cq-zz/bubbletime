@@ -223,7 +223,7 @@ export default {
   },
   home: {
     brand: "泡泡时光",
-    slogan: "认真过好每一天",
+    slogan: "温柔地记录每一天",
     totalItems: "物品总数",
     activePlans: "进行中计划",
     thisMonthExpense: "本月支出",
@@ -251,6 +251,7 @@ export default {
     bills: "记账",
     charts: "收支分析",
     chartHint: "近6月数据概览",
+    noChartData: "暂无数据",
     expenseAnalysis: "支出分析",
     incomeAnalysis: "收入分析",
   },

@@ -39,16 +39,16 @@ import {
     Zap,
 } from "lucide-react-native";
 import { BarLineChart, DonutChart } from "../../components/charts";
+import MoodCalendarModal from "../../components/MoodCalendarModal";
 import {
     fetchBillCategoryBreakdown,
     fetchBillMonthlyTrend,
     fetchBillSummary,
 } from "../../services/bills";
+import { fetchCheckInRange } from "../../services/checkIn";
 import { getAll } from "../../services/database";
 import { fetchReminderList } from "../../services/reminder";
-import MoodCalendarModal from "../../components/MoodCalendarModal";
-import { HOME_MODULES, STORAGE_KEYS, MOODS } from "../../utils/constant";
-import { fetchCheckInRange } from "../../services/checkIn";
+import { HOME_MODULES, MOODS, STORAGE_KEYS } from "../../utils/constant";
 import { on } from "../../utils/events";
 import {
     getCurrency,
@@ -303,7 +303,10 @@ async function getModuleCounts() {
       scheduleActive: inProgressSchedules.length,
       scheduleDone: doneSchedules.length,
       scheduleTotal: schedules.length,
-      scheduleRate: schedules.length > 0 ? Math.round((doneSchedules.length / schedules.length) * 100) : 0,
+      scheduleRate:
+        schedules.length > 0
+          ? Math.round((doneSchedules.length / schedules.length) * 100)
+          : 0,
       billsExpense: monthExpense,
       billsIncome: monthIncome,
       expenseCount,
@@ -506,7 +509,10 @@ export default function HomeScreen() {
         }
         setMoodTrend(days);
         const scores = days.filter((d) => d.checked).map((d) => d.score);
-        const avg = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
+        const avg =
+          scores.length > 0
+            ? scores.reduce((a, b) => a + b, 0) / scores.length
+            : 0;
       }
     } catch {}
   }, []);
@@ -660,7 +666,9 @@ export default function HomeScreen() {
   // ── Custom header ──
 
   const displayedModules = visibleModules
-    ? HOME_MODULES.filter((mod) => visibleModules.includes(mod.id) && mod.id !== "mood-trend")
+    ? HOME_MODULES.filter(
+        (mod) => visibleModules.includes(mod.id) && mod.id !== "mood-trend",
+      )
     : HOME_MODULES.filter((mod) => mod.id !== "mood-trend");
 
   const moduleLabelFontSize = (text) =>
@@ -741,25 +749,30 @@ export default function HomeScreen() {
         colors={gradientColors}
         locations={[0, 0.25, 0.5, 0.75, 1]}
         style={StyleSheet.absoluteFill}
-      /><Orb
+      />
+      <Orb
         size={160}
         color={hexToRgba(colors.accent.purple, 0.07)}
         top={60}
         left={-40}
         delay={0}
-      /><Orb
+      />
+      <Orb
         size={120}
         color={hexToRgba(colors.accent.blue, 0.06)}
         top={450}
         left={width - 60}
         delay={1}
-      /><Orb
+      />
+      <Orb
         size={100}
         color={hexToRgba(colors.accent.pink, 0.05)}
         top={850}
         left={50}
         delay={2}
-      /><GridLines color={hexToRgba(colors.primary, 0.03)}       /><Animated.View
+      />
+      <GridLines color={hexToRgba(colors.primary, 0.03)} />
+      <Animated.View
         style={[
           styles.scanLine,
           { pointerEvents: "none" },
@@ -769,7 +782,8 @@ export default function HomeScreen() {
             width: width - hPad * 2,
           },
         ]}
-      /><View style={[styles.customHeader, { paddingTop: insets.top }]}>
+      />
+      <View style={[styles.customHeader, { paddingTop: insets.top }]}>
         <View style={styles.headerLeft}>
           <View style={styles.headerAvatarWrap}>
             {avatar ? (
@@ -783,10 +797,12 @@ export default function HomeScreen() {
                 <User size={16} color={colors.textTertiary} />
               </View>
             )}
-          </View><Text style={styles.headerNickname} numberOfLines={1}>
+          </View>
+          <Text style={styles.headerNickname} numberOfLines={1}>
             {nickname || t("common.newUser")}
           </Text>
-        </View><Pressable
+        </View>
+        <Pressable
           onPress={() => router.push("/settings")}
           style={({ pressed }) => [
             styles.headerIconBtn,
@@ -795,7 +811,8 @@ export default function HomeScreen() {
         >
           <Settings size={18} color={colors.primary} />
         </Pressable>
-      </View><AnimatedRN.View
+      </View>
+      <AnimatedRN.View
         entering={FadeInDown.duration(400).springify()}
         style={styles.statusBar}
       >
@@ -809,15 +826,18 @@ export default function HomeScreen() {
           <Text style={[styles.statusDim, { color: colors.textTertiary }]}>
             ONLINE
           </Text>
-        </View><Text style={[styles.statusDate, { color: colors.textTertiary }]}>
+        </View>
+        <Text style={[styles.statusDate, { color: colors.textTertiary }]}>
           {dateStr}
-        </Text><View style={styles.statusGroup}>
+        </Text>
+        <View style={styles.statusGroup}>
           <Radio size={10} color={colors.primary} />
           <Text style={[styles.statusDim, { color: colors.primary }]}>
             {t("home.brand")}
           </Text>
         </View>
-      </AnimatedRN.View><View style={styles.contentWrap}>
+      </AnimatedRN.View>
+      <View style={styles.contentWrap}>
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={[
@@ -862,7 +882,10 @@ export default function HomeScreen() {
                 style={styles.heroChipAvatar}
               />
               <View style={styles.heroChipText}>
-                <Text style={styles.heroChipBrand}>{t("home.brand")}</Text><Sparkles size={11} color={colors.accent.yellow} /><Text style={styles.heroChipSub}>{t("home.slogan")}</Text><Sparkles size={11} color={colors.accent.yellow} />
+                <Text style={styles.heroChipBrand}>{t("home.brand")}</Text>
+                <Sparkles size={11} color={colors.accent.yellow} />
+                <Text style={styles.heroChipSub}>{t("home.slogan")}</Text>
+                <Sparkles size={11} color={colors.accent.yellow} />
               </View>
               <Animated.View
                 style={[
@@ -920,30 +943,53 @@ export default function HomeScreen() {
               style={styles.compactRow}
             >
               <View style={styles.compactChip}>
-                <View style={[styles.compactDeco, { backgroundColor: "#C78B4A" }]} />
-                <View style={[styles.compactIcon, { backgroundColor: hexToRgba("#C78B4A", 0.15) }]}>
+                <View
+                  style={[styles.compactDeco, { backgroundColor: "#C78B4A" }]}
+                />
+                <View
+                  style={[
+                    styles.compactIcon,
+                    { backgroundColor: hexToRgba("#C78B4A", 0.15) },
+                  ]}
+                >
                   <Package size={16} color="#C78B4A" />
                 </View>
                 <View style={styles.compactTextWrap}>
                   <View style={styles.compactTopRow}>
-                    <Text style={styles.compactValue}>{moduleMetas.assetValue ?? "0"}</Text>
+                    <Text style={styles.compactValue}>
+                      {moduleMetas.assetValue ?? "0"}
+                    </Text>
                   </View>
-                  <Text style={styles.compactLabel}>{t("home.assetValue")}</Text>
+                  <Text style={styles.compactLabel}>
+                    {t("home.assetValue")}
+                  </Text>
                 </View>
               </View>
               <View style={styles.compactChip}>
-                <View style={[styles.compactDeco, { backgroundColor: "#5B8DEF" }]} />
-                <View style={[styles.compactIcon, { backgroundColor: hexToRgba("#5B8DEF", 0.15) }]}>
+                <View
+                  style={[styles.compactDeco, { backgroundColor: "#5B8DEF" }]}
+                />
+                <View
+                  style={[
+                    styles.compactIcon,
+                    { backgroundColor: hexToRgba("#5B8DEF", 0.15) },
+                  ]}
+                >
                   <BarChart3 size={16} color="#5B8DEF" />
                 </View>
                 <View style={styles.compactTextWrap}>
                   <View style={styles.compactTopRow}>
-                    <Text style={styles.compactValue}>{moduleMetas.scheduleRate ?? 0}%</Text>
+                    <Text style={styles.compactValue}>
+                      {moduleMetas.scheduleRate ?? 0}%
+                    </Text>
                     <Text style={styles.compactSuffix}>
-                      ({moduleMetas.scheduleDone ?? 0}/{moduleMetas.scheduleTotal ?? 0})
+                      ({moduleMetas.scheduleDone ?? 0}/
+                      {moduleMetas.scheduleTotal ?? 0})
                     </Text>
                   </View>
-                  <Text style={styles.compactLabel}>{t("home.scheduleRate")}</Text>
+                  <Text style={styles.compactLabel}>
+                    {t("home.scheduleRate")}
+                  </Text>
                 </View>
               </View>
             </AnimatedRN.View>
@@ -1272,11 +1318,11 @@ export default function HomeScreen() {
                       ]}
                     />
                     <Text style={styles.chartTitle}>
-                      {t("home.charts", "收支分析")}
+                      {t("home.charts")}
                     </Text>
                   </View>
                   <Text style={styles.chartHint}>
-                    {t("home.chartHint", "近6月数据概览")}
+                    {t("home.chartHint")}
                   </Text>
                 </View>
                 {chartExpanded ? (
@@ -1294,7 +1340,7 @@ export default function HomeScreen() {
                   ) : expenseBreakdown.length === 0 &&
                     incomeBreakdown.length === 0 ? (
                     <Text style={styles.chartEmpty}>
-                      {t("home.noChartData", "暂无数据")}
+                      {t("home.noChartData")}
                     </Text>
                   ) : (
                     <>
@@ -1311,7 +1357,7 @@ export default function HomeScreen() {
                                 { color: colors.accent.red },
                               ]}
                             >
-                              {t("home.expenseAnalysis", "支出分析")}
+                              {t("home.expenseAnalysis")}
                             </Text>
                           </View>
                           {expenseBreakdown.length > 0 && (
@@ -1339,12 +1385,14 @@ export default function HomeScreen() {
                                           styles.chartDot,
                                           { backgroundColor: item.color },
                                         ]}
-                                      /><Text
+                                      />
+                                      <Text
                                         style={styles.chartLabelText}
                                         numberOfLines={1}
                                       >
                                         {item.label}
-                                      </Text><Text
+                                      </Text>
+                                      <Text
                                         style={[
                                           styles.chartLabelPct,
                                           { color: colors.textSecondary },
@@ -1390,7 +1438,7 @@ export default function HomeScreen() {
                                 { color: colors.accent.green },
                               ]}
                             >
-                              {t("home.incomeAnalysis", "收入分析")}
+                              {t("home.incomeAnalysis")}
                             </Text>
                           </View>
                           {incomeBreakdown.length > 0 && (
@@ -1418,12 +1466,14 @@ export default function HomeScreen() {
                                           styles.chartDot,
                                           { backgroundColor: item.color },
                                         ]}
-                                      /><Text
+                                      />
+                                      <Text
                                         style={styles.chartLabelText}
                                         numberOfLines={1}
                                       >
                                         {item.label}
-                                      </Text><Text
+                                      </Text>
+                                      <Text
                                         style={[
                                           styles.chartLabelPct,
                                           { color: colors.textSecondary },
@@ -1594,19 +1644,22 @@ export default function HomeScreen() {
                             router.push(`/${type}/${id}`);
                           }}
                         >
-                          <PulseDot color={barColor} /><View
+                          <PulseDot color={barColor} />
+                          <View
                             style={[
                               styles.reminderBar,
                               { backgroundColor: barColor },
                             ]}
-                          /><View
+                          />
+                          <View
                             style={[
                               styles.reminderIconChip,
                               { backgroundColor: hexToRgba(accentColor, 0.12) },
                             ]}
                           >
                             <TypeIcon size={16} color={accentColor} />
-                          </View><View style={styles.reminderBody}>
+                          </View>
+                          <View style={styles.reminderBody}>
                             <View style={styles.reminderTitleRow}>
                               <Text style={styles.reminderTitle}>
                                 {r.title}
@@ -1648,7 +1701,8 @@ export default function HomeScreen() {
                                 )}
                               </Text>
                             </View>
-                          </View><ChevronRight size={16} color={colors.textTertiary} />
+                          </View>
+                          <ChevronRight size={16} color={colors.textTertiary} />
                         </Pressable>
                       </AnimatedRN.View>
                     );
@@ -1659,9 +1713,11 @@ export default function HomeScreen() {
                   <BellOff
                     size={28}
                     color={hexToRgba(colors.textTertiary, 0.5)}
-                  /><Text style={styles.reminderEmptyText}>
+                  />
+                  <Text style={styles.reminderEmptyText}>
                     {t("home.noReminder")}
-                  </Text>{/* */}
+                  </Text>
+                  {/* */}
                   <Text style={styles.reminderEmptyDesc}>
                     {t("home.noReminderDesc")}
                   </Text>
@@ -1671,88 +1727,177 @@ export default function HomeScreen() {
 
             {/* ── 心情走势 ── */}
             {(!visibleModules || visibleModules.includes("mood-trend")) && (
-            <MoodCalendarModal renderTrigger={({ open }) => (
-            <AnimatedRN.View
-              entering={FadeInDown.duration(450).delay(170).springify().damping(16)}
-              style={styles.moodTrendCard}
-            >
-              <Pressable style={styles.moodTrendHeader} onPress={open}>
-                <View style={styles.sectionTitleRow}>
-                  <Smile size={16} color={colors.primary} />
-                  <View style={[styles.sectionHeaderDeco, { backgroundColor: colors.primary }]} />
-                  <Text style={styles.moodTrendTitle}>{t("moodTrend.title")}</Text>
-                  <Text style={styles.moodTrendSubtitle}>
-                    {t("moodTrend.last7Days")}
-                    {moodTrend.length > 0 && ` (${moodTrend[0].dateStr.replace(/-/g, "/")}-${moodTrend[moodTrend.length-1].dateStr.replace(/-/g, "/")})`}
-                  </Text>
-                </View>
-              </Pressable>
-              <>
-                <View style={styles.moodTrendBars}>
-                  {moodTrend.map((day) => {
-                    const barH = day.score ? (day.score / 5) * 100 : 0;
-                    const barColor = day.score >= 5 ? "#FFC53D" : day.score >= 4 ? "#46A758" : day.score >= 3 ? "#5B8DD9" : day.score >= 2 ? "#E8933B" : "#CD3D64";
-                    return (
-                      <View key={day.dateStr} style={styles.moodTrendBarCol}>
-                        <View style={styles.moodTrendBarWrap}>
-                          {day.checked ? (
-                            <View style={[styles.moodTrendBar, { height: barH + "%", backgroundColor: barColor }]} />
-                          ) : (
-                            <View style={styles.moodTrendBarEmpty} />
-                          )}
-                        </View>
-                        <Text style={[styles.moodTrendDayEmoji, !day.mood && styles.moodTrendDayEmojiEmpty]}>{day.mood?.emoji || "—"}</Text>
-                        {day.mood ? (
-                          <Text style={styles.moodTrendMoodName} numberOfLines={1}>{t("checkIn.mood." + day.mood.key)}</Text>
-                        ) : (
-                          <Text style={styles.moodTrendDayLabel}>{day.dayLabel}</Text>
-                        )}
-                        {day.score ? (
-                          <Text style={[styles.moodTrendScore, { color: barColor }]}>{day.score}</Text>
-                        ) : (
-                          <Text style={styles.moodTrendNoScore}>-</Text>
-                        )}
+              <MoodCalendarModal
+                renderTrigger={({ open }) => (
+                  <AnimatedRN.View
+                    entering={FadeInDown.duration(450)
+                      .delay(170)
+                      .springify()
+                      .damping(16)}
+                    style={styles.moodTrendCard}
+                  >
+                    <Pressable style={styles.moodTrendHeader} onPress={open}>
+                      <View style={styles.sectionTitleRow}>
+                        <Smile size={16} color={colors.primary} />
+                        <View
+                          style={[
+                            styles.sectionHeaderDeco,
+                            { backgroundColor: colors.primary },
+                          ]}
+                        />
+                        <Text style={styles.moodTrendTitle}>
+                          {t("moodTrend.title")}
+                        </Text>
+                        <Text style={styles.moodTrendSubtitle}>
+                          {t("moodTrend.last7Days")}
+                          {moodTrend.length > 0 &&
+                            ` (${moodTrend[0].dateStr.replace(/-/g, "/")}-${moodTrend[moodTrend.length - 1].dateStr.replace(/-/g, "/")})`}
+                        </Text>
                       </View>
-                    );
-                  })}
-                </View>
-                <View style={styles.moodTrendLegend}>
-                  <View style={[styles.moodTrendLegendDot, { backgroundColor: "#FFC53D" }]} />
-                  <Text style={styles.moodTrendLegendText}>5</Text>
-                  <View style={[styles.moodTrendLegendDot, { backgroundColor: "#46A758" }]} />
-                  <Text style={styles.moodTrendLegendText}>4</Text>
-                  <View style={[styles.moodTrendLegendDot, { backgroundColor: "#5B8DD9" }]} />
-                  <Text style={styles.moodTrendLegendText}>3</Text>
-                  <View style={[styles.moodTrendLegendDot, { backgroundColor: "#E8933B" }]} />
-                  <Text style={styles.moodTrendLegendText}>2</Text>
-                  <View style={[styles.moodTrendLegendDot, { backgroundColor: "#CD3D64" }]} />
-                  <Text style={styles.moodTrendLegendText}>1</Text>
-                </View>
-                <View style={styles.moodTrendMsgWrap}>
-                  <Text style={styles.moodTrendMsg}>
-                    {moodTrend.some((d) => d.checked)
-                      ? (() => {
-                          const scores = moodTrend.filter((d) => d.checked).map((d) => d.score);
-                          const avg = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
-                          let msgKey = "neutral";
-                          if (avg >= 4.5) msgKey = "excellent";
-                          else if (avg >= 3.5) msgKey = "good";
-                          else if (avg >= 2.5) msgKey = "neutral";
-                          else if (avg >= 1.5) msgKey = "low";
-                          else msgKey = "veryLow";
-                          return t("moodTrend." + msgKey);
-                        })()
-                      : t("moodTrend.noData")}
-                  </Text>
-                </View>
-              </>
-            </AnimatedRN.View>
-            )} />
+                    </Pressable>
+                    <>
+                      <View style={styles.moodTrendBars}>
+                        {moodTrend.map((day) => {
+                          const barH = day.score ? (day.score / 5) * 100 : 0;
+                          const barColor =
+                            day.score >= 5
+                              ? "#FFC53D"
+                              : day.score >= 4
+                                ? "#46A758"
+                                : day.score >= 3
+                                  ? "#5B8DD9"
+                                  : day.score >= 2
+                                    ? "#E8933B"
+                                    : "#CD3D64";
+                          return (
+                            <View
+                              key={day.dateStr}
+                              style={styles.moodTrendBarCol}
+                            >
+                              <View style={styles.moodTrendBarWrap}>
+                                {day.checked ? (
+                                  <View
+                                    style={[
+                                      styles.moodTrendBar,
+                                      {
+                                        height: barH + "%",
+                                        backgroundColor: barColor,
+                                      },
+                                    ]}
+                                  />
+                                ) : (
+                                  <View style={styles.moodTrendBarEmpty} />
+                                )}
+                              </View>
+                              <Text
+                                style={[
+                                  styles.moodTrendDayEmoji,
+                                  !day.mood && styles.moodTrendDayEmojiEmpty,
+                                ]}
+                              >
+                                {day.mood?.emoji || "—"}
+                              </Text>
+                              {day.mood ? (
+                                <Text
+                                  style={styles.moodTrendMoodName}
+                                  numberOfLines={1}
+                                >
+                                  {t("checkIn.mood." + day.mood.key)}
+                                </Text>
+                              ) : (
+                                <Text style={styles.moodTrendDayLabel}>
+                                  {day.dayLabel}
+                                </Text>
+                              )}
+                              {day.score ? (
+                                <Text
+                                  style={[
+                                    styles.moodTrendScore,
+                                    { color: barColor },
+                                  ]}
+                                >
+                                  {day.score}
+                                </Text>
+                              ) : (
+                                <Text style={styles.moodTrendNoScore}>-</Text>
+                              )}
+                            </View>
+                          );
+                        })}
+                      </View>
+                      <View style={styles.moodTrendLegend}>
+                        <View
+                          style={[
+                            styles.moodTrendLegendDot,
+                            { backgroundColor: "#FFC53D" },
+                          ]}
+                        />
+                        <Text style={styles.moodTrendLegendText}>5</Text>
+                        <View
+                          style={[
+                            styles.moodTrendLegendDot,
+                            { backgroundColor: "#46A758" },
+                          ]}
+                        />
+                        <Text style={styles.moodTrendLegendText}>4</Text>
+                        <View
+                          style={[
+                            styles.moodTrendLegendDot,
+                            { backgroundColor: "#5B8DD9" },
+                          ]}
+                        />
+                        <Text style={styles.moodTrendLegendText}>3</Text>
+                        <View
+                          style={[
+                            styles.moodTrendLegendDot,
+                            { backgroundColor: "#E8933B" },
+                          ]}
+                        />
+                        <Text style={styles.moodTrendLegendText}>2</Text>
+                        <View
+                          style={[
+                            styles.moodTrendLegendDot,
+                            { backgroundColor: "#CD3D64" },
+                          ]}
+                        />
+                        <Text style={styles.moodTrendLegendText}>1</Text>
+                      </View>
+                      <View style={styles.moodTrendMsgWrap}>
+                        <Text style={styles.moodTrendMsg}>
+                          {moodTrend.some((d) => d.checked)
+                            ? (() => {
+                                const scores = moodTrend
+                                  .filter((d) => d.checked)
+                                  .map((d) => d.score);
+                                const avg =
+                                  scores.length > 0
+                                    ? scores.reduce((a, b) => a + b, 0) /
+                                      scores.length
+                                    : 0;
+                                let msgKey = "neutral";
+                                if (avg >= 4.5) msgKey = "excellent";
+                                else if (avg >= 3.5) msgKey = "good";
+                                else if (avg >= 2.5) msgKey = "neutral";
+                                else if (avg >= 1.5) msgKey = "low";
+                                else msgKey = "veryLow";
+                                return t("moodTrend." + msgKey);
+                              })()
+                            : t("moodTrend.noData")}
+                        </Text>
+                      </View>
+                    </>
+                  </AnimatedRN.View>
+                )}
+              />
             )}
 
             <View style={styles.footer}>
               <View style={styles.footerDivider}>
-                <View style={styles.footerCornerL} /><View style={styles.footerDividerLine} /><Zap size={10} color={colors.primary} /><View style={styles.footerDividerLine} /><View style={styles.footerCornerR} />
+                <View style={styles.footerCornerL} />
+                <View style={styles.footerDividerLine} />
+                <Zap size={10} color={colors.primary} />
+                <View style={styles.footerDividerLine} />
+                <View style={styles.footerCornerR} />
               </View>
               <Text style={styles.footerBrand}>{t("home.footer")}</Text>
               <View style={styles.footerDots}>
@@ -1761,12 +1906,14 @@ export default function HomeScreen() {
                     styles.footerDot,
                     { backgroundColor: colors.accent.purple },
                   ]}
-                /><View
+                />
+                <View
                   style={[
                     styles.footerDot,
                     { backgroundColor: colors.accent.blue },
                   ]}
-                /><View
+                />
+                <View
                   style={[
                     styles.footerDot,
                     { backgroundColor: colors.accent.pink },
@@ -1842,7 +1989,7 @@ function buildStyles(colors, typography, shadows, cardStyles) {
     heroChip: {
       flexDirection: "row",
       alignItems: "center",
-      gap: 10,
+      gap: 2,
       paddingVertical: 12,
       paddingHorizontal: 16,
       backgroundColor: colors.surfaceFrost,

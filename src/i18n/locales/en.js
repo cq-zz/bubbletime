@@ -223,7 +223,7 @@ export default {
   },
   home: {
     brand: "BubbleTime",
-    slogan: "Live every day with purpose",
+    slogan: "Gently record every day",
     totalItems: "Total Items",
     activePlans: "Active Plans",
     thisMonthExpense: "This Month Expense",
@@ -251,6 +251,7 @@ export default {
     planLabel: "Plan",
     charts: "Income & Expense",
     chartHint: "Last 6 months overview",
+    noChartData: "No data",
     expenseAnalysis: "Expense Analysis",
     incomeAnalysis: "Income Analysis",
   },
