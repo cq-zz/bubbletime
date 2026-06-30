@@ -1,16 +1,11 @@
-/* eslint-disable */
 import { Image } from "expo-image";
 import { useMemo, useRef, useState } from "react";
-import {
-  Animated,
-  Modal,
-  PanResponder,
-  Pressable,
-  StyleSheet,
-  View,
-} from "react-native";
-import { X } from "lucide-react-native";
+import { Animated, Dimensions, Modal, StyleSheet, View } from "react-native";
 import { useTheme } from "../utils/theme";
+
+const MIN_SCALE = 1;
+const MAX_SCALE = 4;
+const TAP_MOVE_THRESHOLD = 10;
 
 function dist(t) {
   if (t.length < 2) return 0;
@@ -19,162 +14,212 @@ function dist(t) {
   return Math.sqrt(dx * dx + dy * dy);
 }
 
-function mid(t) {
-  if (t.length < 2) return { x: 0, y: 0 };
-  return { x: (t[0].pageX + t[1].pageX) / 2, y: (t[0].pageY + t[1].pageY) / 2 };
+function midpoint(t) {
+  return {
+    x: (t[0].pageX + t[1].pageX) / 2,
+    y: (t[0].pageY + t[1].pageY) / 2,
+  };
 }
 
 export default function ImagePreviewModal({ imageUri, onClose }) {
   const { colors } = useTheme();
   const styles = useMemo(() => buildStyles(colors), [colors]);
+  const vp = useRef(Dimensions.get("window"));
 
   const [sx] = useState(() => new Animated.Value(1));
   const [tx] = useState(() => new Animated.Value(0));
   const [ty] = useState(() => new Animated.Value(0));
 
-  const st = useRef({
-    scale: 1,
+  const S = useRef({
+    // Current transform
+    sc: 1,
     tx: 0,
     ty: 0,
-    pinching: false,
-    baseScale: 1,
-    pinchDist: 0,
-    pinchMidX: 0,
-    pinchMidY: 0,
-    panning: false,
-    panStartX: 0,
-    panStartY: 0,
+    // Drag
+    drag: false,
+    dragSc: 1,
+    dragTx: 0,
+    dragTy: 0,
+    dragBaseX: 0,
+    dragBaseY: 0,
+    // Pinch
+    pinch: false,
+    baseSc: 1,
+    baseTx: 0,
+    baseTy: 0,
+    startDist: 0,
+    startMidX: 0,
+    startMidY: 0,
+    // First‑move baseline guard (avoids jump between touchstart and first touchmove)
+    baselined: false,
+    // Tap tracking
+    moved: false,
+    tapX: 0,
+    tapY: 0,
   });
 
-  const lastTap = useRef(0);
-  const closeTimer = useRef(null);
+  // ─── helpers ───────────────────────────────────────────────
 
-  const close = () => {
-    if (closeTimer.current) clearTimeout(closeTimer.current);
-    closeTimer.current = null;
-    lastTap.current = 0;
-    st.current.scale = 1;
-    st.current.tx = 0;
-    st.current.ty = 0;
-    sx.setValue(1);
-    tx.setValue(0);
-    ty.setValue(0);
+  function bound(sc) {
+    const mtx = (vp.current.width * sc - vp.current.width) / 2;
+    const mty = (vp.current.height * sc - vp.current.height) / 2;
+    return { mtx: Math.max(0, mtx), mty: Math.max(0, mty) };
+  }
+
+  function set(s, x, y, anim) {
+    const c = S.current;
+    c.sc = s;
+    c.tx = x;
+    c.ty = y;
+    if (anim) {
+      Animated.parallel([
+        Animated.spring(sx, { toValue: s, useNativeDriver: true }),
+        Animated.spring(tx, { toValue: x, useNativeDriver: true }),
+        Animated.spring(ty, { toValue: y, useNativeDriver: true }),
+      ]).start();
+    } else {
+      sx.setValue(s);
+      tx.setValue(x);
+      ty.setValue(y);
+    }
+  }
+
+  function recenter() {
+    const c = S.current;
+    if (c.sc < 1) { set(1, 0, 0, true); return; }
+    const { mtx, mty } = bound(c.sc);
+    const x = Math.min(mtx, Math.max(-mtx, c.tx));
+    const y = Math.min(mty, Math.max(-mty, c.ty));
+    if (x !== c.tx || y !== c.ty) set(c.sc, x, y, true);
+  }
+
+  function beginPinch(t) {
+    const c = S.current;
+    const p = midpoint(t);
+    c.pinch = true;
+    c.baselined = true;
+    c.baseSc = c.sc;
+    c.baseTx = c.tx;
+    c.baseTy = c.ty;
+    c.startDist = dist(t);
+    c.startMidX = p.x - vp.current.width / 2;
+    c.startMidY = p.y - vp.current.height / 2;
+  }
+
+  function close() {
+    const c = S.current; c.sc = 1; c.tx = 0; c.ty = 0;
+    sx.setValue(1); tx.setValue(0); ty.setValue(0);
     onClose();
-  };
+  }
 
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: () => true,
+  // ─── touch handlers ───────────────────────────────────────
 
-      onPanResponderGrant: (evt) => {
-        const touches = evt.nativeEvent.touches;
-        const c = st.current;
-        c.pinching = false;
-        c.panning = false;
+  function onStart(e) {
+    const t = e.nativeEvent.touches || [];
+    const c = S.current;
+    c.drag = false;
+    c.pinch = false;
+    c.moved = false;
+    c.baselined = false;
 
-        if (touches.length >= 2) {
-          c.pinching = true;
-          c.baseScale = c.scale;
-          c.pinchDist = dist(touches);
-          const m = mid(touches);
-          c.pinchMidX = m.x;
-          c.pinchMidY = m.y;
-        } else if (c.scale > 1) {
-          c.panning = true;
-          c.panStartX = c.tx;
-          c.panStartY = c.ty;
-        }
-      },
+    if (t.length >= 2) {
+      beginPinch(t);
+    } else if (c.sc > 1) {
+      c.drag = true;
+      c.dragSc = c.sc;
+      c.dragTx = c.tx;
+      c.dragTy = c.ty;
+      c.dragBaseX = t[0]?.pageX || 0;
+      c.dragBaseY = t[0]?.pageY || 0;
+    }
 
-      onPanResponderMove: (evt, gs) => {
-        const touches = evt.nativeEvent.touches;
-        const c = st.current;
+    c.tapX = t[0]?.pageX || 0;
+    c.tapY = t[0]?.pageY || 0;
+  }
 
-        if (touches.length >= 2) {
-          c.pinching = true;
-          const d = dist(touches);
-          if (c.pinchDist > 0) {
-            const newScale = c.baseScale * (d / c.pinchDist);
-            if (newScale < 0.5) return;
-            c.scale = newScale;
-            sx.setValue(newScale);
-          }
+  function onMove(e) {
+    const t = e.nativeEvent.touches || [];
+    const c = S.current;
 
-          const m = mid(touches);
-          const dx = m.x - c.pinchMidX;
-          const dy = m.y - c.pinchMidY;
-          c.tx += dx;
-          c.ty += dy;
-          tx.setValue(c.tx);
-          ty.setValue(c.ty);
+    if (t.length >= 2) {
+      c.pinch = true;
 
-          c.pinchDist = d;
-          c.pinchMidX = m.x;
-          c.pinchMidY = m.y;
-        } else if (c.pinching) {
-          // transitioning from 2 to 1 finger – ignore
-        } else if (c.scale > 1) {
-          c.panning = true;
-          c.tx = c.panStartX + gs.dx;
-          c.ty = c.panStartY + gs.dy;
-          tx.setValue(c.tx);
-          ty.setValue(c.ty);
-        }
-      },
+      // If the second finger did not trigger onStart, fall back to the first
+      // two-finger move frame as the pinch baseline.
+      if (!c.baselined) {
+        beginPinch(t);
+        return; // apply nothing on this frame – transform is unchanged
+      }
 
-      onPanResponderRelease: (_, gs) => {
-        const c = st.current;
+      const d = dist(t);
+      if (d === 0 || c.startDist === 0) return;
 
-        if (c.pinching) {
-          if (c.scale < 1) {
-            c.scale = 1;
-            c.tx = 0;
-            c.ty = 0;
-            Animated.parallel([
-              Animated.spring(sx, { toValue: 1, useNativeDriver: true }),
-              Animated.spring(tx, { toValue: 0, useNativeDriver: true }),
-              Animated.spring(ty, { toValue: 0, useNativeDriver: true }),
-            ]).start();
-          }
-          c.pinching = false;
-          return;
-        }
+      const raw = c.baseSc * (d / c.startDist);
+      const s = Math.min(MAX_SCALE, Math.max(MIN_SCALE, raw));
 
-        if (c.panning) {
-          c.panning = false;
-          return;
-        }
+      // Keep the content point under the initial two-finger midpoint anchored,
+      // while still allowing the current midpoint to pan during pinch.
+      const p = midpoint(t);
+      const cx = p.x - vp.current.width / 2;
+      const cy = p.y - vp.current.height / 2;
+      const r = s / (c.baseSc || 1);
+      const nx = cx - (c.startMidX - c.baseTx) * r;
+      const ny = cy - (c.startMidY - c.baseTy) * r;
 
-        // Tap detection
-        if (Math.abs(gs.dx) > 8 || Math.abs(gs.dy) > 8) return;
+      const { mtx, mty } = bound(s);
+      set(s, Math.min(mtx, Math.max(-mtx, nx)), Math.min(mty, Math.max(-mty, ny)), false);
+      c.moved = true;
+    } else if (c.pinch) {
+      // 2→1 fingers – ignore
+      c.moved = true;
+    } else if (c.drag || c.sc > 1) {
+      c.drag = true;
+      const dx = (t[0]?.pageX || 0) - c.dragBaseX;
+      const dy = (t[0]?.pageY || 0) - c.dragBaseY;
+      if (Math.abs(dx) <= TAP_MOVE_THRESHOLD && Math.abs(dy) <= TAP_MOVE_THRESHOLD) {
+        return;
+      }
+      c.moved = true;
+      const { mtx, mty } = bound(c.sc);
+      set(c.sc,
+        Math.min(mtx, Math.max(-mtx, c.dragTx + dx)),
+        Math.min(mty, Math.max(-mty, c.dragTy + dy)),
+        false);
+    } else if (t.length === 1) {
+      c.lastX = t[0]?.pageX || 0;
+      c.lastY = t[0]?.pageY || 0;
+    }
+  }
 
-        const now = Date.now();
-        if (now - lastTap.current < 300) {
-          if (closeTimer.current) clearTimeout(closeTimer.current);
-          closeTimer.current = null;
-          // double tap → toggle zoom
-          if (c.scale > 1) {
-            c.scale = 1;
-            c.tx = 0;
-            c.ty = 0;
-            Animated.parallel([
-              Animated.spring(sx, { toValue: 1, useNativeDriver: true }),
-              Animated.spring(tx, { toValue: 0, useNativeDriver: true }),
-              Animated.spring(ty, { toValue: 0, useNativeDriver: true }),
-            ]).start();
-          } else {
-            c.scale = 2.5;
-            Animated.spring(sx, { toValue: 2.5, useNativeDriver: true }).start();
-          }
-          lastTap.current = 0;
-        } else {
-          lastTap.current = now;
-          closeTimer.current = setTimeout(close, 300);
-        }
-      },
-    })
-  ).current;
+  function onEnd(e) {
+    const c = S.current;
+
+    if (c.pinch) {
+      c.pinch = false;
+      c.baselined = false;
+      c.startDist = 0;
+      recenter();
+      return;
+    }
+
+    if (c.drag) {
+      c.drag = false;
+      if (c.moved) {
+        recenter();
+        return;
+      }
+    }
+
+    if (c.moved) {
+      const dx = Math.abs((c.lastX || c.tapX) - c.tapX);
+      const dy = Math.abs((c.lastY || c.tapY) - c.tapY);
+      if (dx > TAP_MOVE_THRESHOLD || dy > TAP_MOVE_THRESHOLD) return;
+    }
+
+    close();
+  }
+
+  // ─── render ───────────────────────────────────────────────
 
   if (!imageUri) return null;
 
@@ -185,11 +230,12 @@ export default function ImagePreviewModal({ imageUri, onClose }) {
       animationType="fade"
       onRequestClose={close}
     >
-      <View style={styles.overlay}>
-        <Pressable style={styles.closeBtn} onPress={close}>
-          <X size={24} color="#FFFFFF" />
-        </Pressable>
-
+      <View
+        style={styles.overlay}
+        onTouchStart={onStart}
+        onTouchMove={onMove}
+        onTouchEnd={onEnd}
+      >
         <Animated.View
           style={[
             styles.imageWrap,
@@ -201,7 +247,6 @@ export default function ImagePreviewModal({ imageUri, onClose }) {
               ],
             },
           ]}
-          {...panResponder.panHandlers}
         >
           <Image
             source={typeof imageUri === "string" ? { uri: imageUri } : imageUri}
@@ -221,18 +266,6 @@ function buildStyles(colors) {
       backgroundColor: "rgba(0,0,0,0.92)",
       justifyContent: "center",
       alignItems: "center",
-    },
-    closeBtn: {
-      position: "absolute",
-      top: 60,
-      right: 20,
-      width: 40,
-      height: 40,
-      borderRadius: 20,
-      backgroundColor: "rgba(255,255,255,0.15)",
-      alignItems: "center",
-      justifyContent: "center",
-      zIndex: 10,
     },
     imageWrap: {
       width: "100%",
