@@ -254,6 +254,8 @@ export default {
     noChartData: "No data",
     expenseAnalysis: "Expense Analysis",
     incomeAnalysis: "Income Analysis",
+    bubbleTimeGame: "Bubble Pop",
+    bubbleTimeGameDesc: "ASMR bubble popping relaxation",
   },
   settings: {
     title: "Settings",

@@ -17,6 +17,7 @@ import {
     Package,
     Receipt,
     Smile,
+    Sparkles,
     Tag,
 } from "lucide-react-native";
 import React, {
@@ -61,6 +62,7 @@ const MODULE_ICONS = {
   diary: BookOpen,
   "important-date": CalendarHeart,
   "mood-trend": Smile,
+  "bubble-time-game": Sparkles,
 };
 
 function ToggleSwitch({ value }) {

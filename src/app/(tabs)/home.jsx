@@ -667,9 +667,16 @@ export default function HomeScreen() {
 
   const displayedModules = visibleModules
     ? HOME_MODULES.filter(
-        (mod) => visibleModules.includes(mod.id) && mod.id !== "mood-trend",
+        (mod) =>
+          visibleModules.includes(mod.id) &&
+          mod.id !== "mood-trend" &&
+          mod.id !== "bubble-time-game",
       )
-    : HOME_MODULES.filter((mod) => mod.id !== "mood-trend");
+    : HOME_MODULES.filter(
+        (mod) => mod.id !== "mood-trend" && mod.id !== "bubble-time-game",
+      );
+  const showBubbleTimeGame =
+    !visibleModules || visibleModules.includes("bubble-time-game");
 
   const moduleLabelFontSize = (text) =>
     text.length <= 8 ? 14 : text.length <= 14 ? 13 : 12;
@@ -739,6 +746,46 @@ export default function HomeScreen() {
       </Pressable>
     );
   };
+
+  const renderRelaxCard = () => (
+    <AnimatedRN.View
+      entering={FadeInDown.duration(450).delay(90).springify().damping(16)}
+      style={styles.relaxModuleWrap}
+    >
+      <Pressable
+        onPress={() => router.push("/bubble-time-game")}
+        style={({ pressed }) => [
+          styles.relaxModuleCard,
+          pressed && styles.relaxModuleCardPressed,
+        ]}
+      >
+        <LinearGradient
+          colors={["rgba(56,189,248,0.18)", "rgba(129,140,248,0.12)", "rgba(236,72,153,0.08)"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={StyleSheet.absoluteFill}
+        />
+        <View style={styles.relaxBubbleOne} />
+        <View style={styles.relaxBubbleTwo} />
+        <View style={styles.relaxModuleContent}>
+          <View style={styles.relaxModuleIconWrap}>
+            <Sparkles size={22} color="#BAE6FD" />
+          </View>
+          <View style={styles.relaxModuleTextWrap}>
+            <Text style={styles.relaxModuleKicker}>放松一下</Text>
+            <Text style={styles.relaxModuleTitle}>拾光泡泡</Text>
+            <Text style={styles.relaxModuleDesc}>
+              戳破漂浮的时光气泡，听一点轻柔音效，让注意力慢慢安静下来。
+            </Text>
+          </View>
+          <View style={styles.relaxModuleAction}>
+            <Text style={styles.relaxModuleActionText}>开启</Text>
+            <ChevronRight size={15} color="#E0F2FE" />
+          </View>
+        </View>
+      </Pressable>
+    </AnimatedRN.View>
+  );
 
   return (
     <View
@@ -1512,6 +1559,8 @@ export default function HomeScreen() {
               )}
             </AnimatedRN.View>
 
+            {showBubbleTimeGame && renderRelaxCard()}
+
             {/* ── 功能模块 ── */}
             {displayedModules.length > 0 && (
               <AnimatedRN.View
@@ -2225,6 +2274,97 @@ function buildStyles(colors, typography, shadows, cardStyles) {
       color: colors.primary,
     },
     sectionLinkPressed: { opacity: 0.7 },
+    // ── 拾光泡泡独立入口 ──
+    relaxModuleWrap: { width: "100%" },
+    relaxModuleCard: {
+      minHeight: 132,
+      borderRadius: radius.xxl,
+      overflow: "hidden",
+      borderWidth: 1,
+      borderColor: "rgba(125,211,252,0.22)",
+      backgroundColor: colors.surface,
+      ...shadows.md,
+    },
+    relaxModuleCardPressed: {
+      opacity: 0.88,
+      transform: [{ scale: 0.985 }],
+    },
+    relaxBubbleOne: {
+      position: "absolute",
+      width: 118,
+      height: 118,
+      borderRadius: 59,
+      right: -26,
+      top: -32,
+      backgroundColor: "rgba(56,189,248,0.14)",
+      borderWidth: 1,
+      borderColor: "rgba(255,255,255,0.18)",
+    },
+    relaxBubbleTwo: {
+      position: "absolute",
+      width: 72,
+      height: 72,
+      borderRadius: 36,
+      right: 54,
+      bottom: -22,
+      backgroundColor: "rgba(236,72,153,0.1)",
+      borderWidth: 1,
+      borderColor: "rgba(255,255,255,0.14)",
+    },
+    relaxModuleContent: {
+      flex: 1,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 14,
+      padding: 18,
+    },
+    relaxModuleIconWrap: {
+      width: 52,
+      height: 52,
+      borderRadius: 26,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: "rgba(14,165,233,0.18)",
+      borderWidth: 1,
+      borderColor: "rgba(186,230,253,0.28)",
+    },
+    relaxModuleTextWrap: {
+      flex: 1,
+      gap: 3,
+      minWidth: 0,
+    },
+    relaxModuleKicker: {
+      fontSize: 11,
+      color: colors.textTertiary,
+      letterSpacing: 1.6,
+    },
+    relaxModuleTitle: {
+      fontSize: 20,
+      fontWeight: "700",
+      color: colors.textPrimary,
+      letterSpacing: 1.2,
+    },
+    relaxModuleDesc: {
+      fontSize: 12,
+      lineHeight: 18,
+      color: colors.textSecondary,
+    },
+    relaxModuleAction: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 2,
+      paddingHorizontal: 10,
+      paddingVertical: 7,
+      borderRadius: 999,
+      backgroundColor: "rgba(56,189,248,0.18)",
+      borderWidth: 1,
+      borderColor: "rgba(125,211,252,0.22)",
+    },
+    relaxModuleActionText: {
+      color: "#E0F2FE",
+      fontSize: 12,
+      fontWeight: "700",
+    },
     // ── 功能模块 ──
     moduleGrid: { width: "100%", gap: 10 },
     moduleRow: { width: "100%", flexDirection: "row", gap: 10 },

@@ -254,6 +254,8 @@ export default {
     noChartData: "暂无数据",
     expenseAnalysis: "支出分析",
     incomeAnalysis: "收入分析",
+    bubbleTimeGame: "拾光泡泡",
+    bubbleTimeGameDesc: "ASMR 戳泡泡放松解压",
   },
   settings: {
     title: "设置",

@@ -1,9 +1,5 @@
-import { Text, View } from "react-native";
+import BubbleGame from "../../components/BubbleGame";
 
 export default function BubbleTimeGame() {
-  return (
-    <View>
-      <Text>Bubble Time Game</Text>
-    </View>
-  );
+  return <BubbleGame />;
 }

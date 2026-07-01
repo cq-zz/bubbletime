@@ -39,6 +39,7 @@ import {
     ShoppingBag,
     Smile,
     Smartphone,
+    Sparkles,
     Star,
     Stethoscope,
     Sun,
@@ -288,6 +289,13 @@ export const HOME_MODULES = [
     accent: "#46A758",
     icon: Smile,
     metaColor: "#46A758",
+  },
+  {
+    id: "bubble-time-game",
+    i18nKey: "home.bubbleTimeGame",
+    accent: "#38BDF8",
+    icon: Sparkles,
+    metaColor: "#38BDF8",
   },
 ];
 

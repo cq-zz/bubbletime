@@ -160,6 +160,7 @@ export default function ProfileScreen() {
     diary: BookOpen,
     "important-date": CalendarHeart,
     "mood-trend": Smile,
+    "bubble-time-game": Sparkles,
   };
 
   const quickAccessModules = HOME_MODULES.filter((m) => m.id !== "mood-trend");

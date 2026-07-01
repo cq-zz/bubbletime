@@ -49,6 +49,7 @@ function AppContent() {
         <Stack.Screen name="reminder" options={{ title: t("nav.reminder") }} />
         <Stack.Screen name="schedule" options={{ title: t("nav.schedule") }} />
         <Stack.Screen name="diary" options={{ title: t("nav.diary") }} />
+        <Stack.Screen name="bubble-time-game" options={{ headerShown: false }} />
       </Stack>
     </>
   );
